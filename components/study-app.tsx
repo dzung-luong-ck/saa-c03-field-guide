@@ -368,7 +368,7 @@ export default function StudyApp() {
             <p className="text-sm font-bold">Mẹo ôn nhanh</p>
             <p className="mt-2 text-xs leading-5 text-muted-foreground">Sau mỗi bài, tự nói lại decision tree mà không nhìn tài liệu.</p>
           </div>
-          <a href="https://github.com" target="_blank" rel="noreferrer" className="mt-4 flex items-center gap-2 px-1 text-xs text-muted-foreground hover:text-foreground">
+          <a href="https://github.com/dzung-luong-ck/saa-c03-field-guide" target="_blank" rel="noreferrer" className="mt-4 flex items-center gap-2 px-1 text-xs text-muted-foreground hover:text-foreground">
             <GitBranch className="size-3.5" /> Mã nguồn trên GitHub
           </a>
         </aside>
