@@ -4,6 +4,8 @@ Website đọc và ôn bộ cheatsheet AWS Certified Solutions Architect – Ass
 
 **Website:** [saa-c03-field-guide-vn.ltdunggg.chatgpt.site](https://saa-c03-field-guide-vn.ltdunggg.chatgpt.site)
 
+**GitHub Pages:** [dzung-luong-ck.github.io/saa-c03-field-guide](https://dzung-luong-ck.github.io/saa-c03-field-guide/)
+
 ![SAA-C03 Field Guide](./public/og.png)
 
 ## Tính năng
@@ -29,6 +31,10 @@ Mở `http://localhost:3000`.
 ```bash
 npm run build
 ```
+
+## Deploy lên GitHub Pages
+
+Workflow [`.github/workflows/deploy-pages.yml`](./.github/workflows/deploy-pages.yml) tự động build bản static và deploy mỗi khi có commit mới trên nhánh `main`. Có thể chạy thủ công từ tab **Actions** bằng nút **Run workflow**.
 
 Nội dung học nằm trong [`content/`](./content). Website không đưa file PDF nguồn lên repository.
 
