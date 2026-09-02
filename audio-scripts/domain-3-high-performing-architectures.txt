@@ -1,0 +1,97 @@
+DOMAIN 3 — THIẾT KẾ KIẾN TRÚC HIỆU NĂNG CAO
+
+Chào bạn. Bài này ôn Domain 3 của kỳ thi SAA-C03: Design High-Performing Architectures. Domain này chiếm khoảng hai mươi bốn phần trăm số điểm và gồm năm task: storage, compute, database, network, và data ingestion cùng transformation.
+
+Trước khi học dịch vụ, hãy nhớ mental model: đo triệu chứng, tìm nút thắt, chọn đúng lớp, tối ưu hoặc scale, rồi đo lại.
+
+CPU cao có thể do thiếu compute. Nhưng CPU thấp mà ứng dụng vẫn chậm có thể do đang chờ storage, database hoặc network. Trong đề thi, đừng chọn dịch vụ mạnh nhất theo cảm tính. Hãy tìm access pattern, bottleneck và chỉ số đề yêu cầu, như latency, IOPS, throughput, concurrency hoặc lag.
+
+TASK 3.1 — STORAGE
+
+Câu hỏi đầu tiên không phải S3 hay EBS nhanh hơn, mà là ứng dụng cần object, block hay file storage.
+
+Object storage truy cập dữ liệu bằng key qua API. Amazon S3 phù hợp cho static asset, backup và data lake ở quy mô lớn. Block storage giống một ổ đĩa gắn vào hệ điều hành. Amazon EBS phù hợp cho boot volume hoặc database trên EC2. File storage cho phép nhiều máy dùng chung cây thư mục. Amazon EFS phù hợp với Linux và NFS. FSx for Windows File Server phù hợp khi đề nhắc Windows, SMB hoặc Active Directory. FSx for Lustre phù hợp với HPC và xử lý file cần throughput rất cao.
+
+Phân biệt ba chỉ số. IOPS là số thao tác đọc ghi mỗi giây, quan trọng với database có nhiều request nhỏ và ngẫu nhiên. Throughput là lượng dữ liệu truyền mỗi giây, quan trọng với video, analytics và file lớn. Latency là thời gian hoàn thành một thao tác, quan trọng với transaction cần phản hồi nhanh. Throughput cao chưa chắc IOPS cao.
+
+Với S3, multipart upload giúp tải object lớn theo nhiều phần và retry từng phần. CloudFront cache nội dung gần người dùng. Transfer Acceleration có thể hỗ trợ client ở xa Region. Với EBS, SSD thường phù hợp random transaction, còn HDD phù hợp sequential throughput trong use case được hỗ trợ. Hiệu năng EBS còn bị giới hạn bởi EC2 instance, nên nâng volume chưa chắc đã hết nghẽn.
+
+Bẫy cần nhớ: Instance Store rất nhanh nhưng không phải persistent storage. EBS thuộc một Availability Zone và không thay shared file system cho nhiều máy. EFS không phải object storage. S3 không phải POSIX file system truyền thống.
+
+TASK 3.2 — COMPUTE
+
+Elastic nghĩa là capacity tự tăng khi tải tăng và giảm khi tải giảm. High-performing là đạt đúng latency và throughput, không phải luôn dùng máy lớn nhất.
+
+Chọn EC2 khi cần toàn quyền hệ điều hành, driver hoặc workload dài. Chọn Lambda cho tác vụ ngắn, stateless và chạy theo event. Chọn ECS để orchestration container theo hệ sinh thái AWS. Chọn EKS khi requirement bắt buộc Kubernetes. Chọn Fargate khi muốn chạy container mà không quản node. Chọn AWS Batch cho batch job có queue và scheduler. Chọn EMR cho Spark hoặc Hadoop.
+
+Với EC2, chọn instance family theo nút thắt. Compute optimized cho CPU. Memory optimized cho working set lớn. Storage optimized cho local I/O cao. Accelerated computing cho GPU, machine learning hoặc HPC.
+
+Auto Scaling phải dùng metric phản ánh nhu cầu thật. Web server có thể scale theo request count per target, CPU hoặc latency. SQS worker nên scale theo backlog trên mỗi instance hoặc tuổi message cũ nhất. Stream consumer nên theo lag hoặc iterator age. Average CPU có thể che giấu một queue hay shard đang nghẽn.
+
+Với Lambda, tăng memory thường cũng tăng CPU. Provisioned Concurrency giúp giảm cold start nhưng phát sinh chi phí. Reserved Concurrency giới hạn hoặc bảo vệ capacity. Vì event có thể được giao lại, function nên idempotent, nghĩa là chạy lại không tạo kết quả sai hoặc trùng lặp.
+
+Nếu API phải giữ request rất lâu để chạy job, hãy decouple bằng SQS hoặc workflow, trả phản hồi sớm và để worker scale theo backlog.
+
+Bẫy cần nhớ: scale up không tự tạo High Availability. ECS không đồng nghĩa Fargate. EKS không phải mặc định cho mọi container. Spot Instance có thể bị thu hồi, nên workload phải chịu lỗi và retry được.
+
+TASK 3.3 — DATABASE
+
+Hãy bắt đầu bằng access pattern. Ứng dụng query bằng key hay join nhiều bảng? Đọc nhiều hay ghi nhiều? Có cần transaction mạnh không? Có chấp nhận dữ liệu cũ vài giây không?
+
+RDS hoặc Aurora phù hợp khi cần SQL, join và transaction quan hệ. DynamoDB phù hợp với key-value hoặc document, access pattern biết trước và scale lớn. ElastiCache phù hợp cho cache, session hoặc leaderboard. OpenSearch phù hợp full-text search. Redshift phù hợp analytical warehouse.
+
+Trong RDS, read replica giúp scale read, nhưng ứng dụng phải gửi truy vấn đọc tới replica. Multi-AZ chủ yếu phục vụ availability và failover, không phải read scaling mặc định. Đây là bẫy rất phổ biến.
+
+Database có giới hạn connection. Lambda hoặc traffic spike có thể tạo connection storm. Connection pool giúp tái sử dụng connection. RDS Proxy quản lý pool và hỗ trợ failover trong use case phù hợp, nhưng không sửa được query thiếu index hoặc schema sai.
+
+Với DynamoDB, partition key phải phân bố request đều. Một hot key có thể tạo bottleneck dù bảng còn capacity. Sort key hỗ trợ query theo range. Global Secondary Index tạo access pattern khác nhưng có chi phí và consistency trade-off. Tránh dùng Scan cho đường truy cập chính nếu có thể Query theo key.
+
+Trong cache-aside, ứng dụng đọc cache trước. Nếu cache miss, ứng dụng đọc database, ghi vào cache rồi trả kết quả. Cache giảm latency và tải database, nhưng cần TTL và invalidation. Cache không phải source of truth.
+
+Bẫy cần nhớ: read replica không giải write bottleneck. Multi-AZ khác read replica. RDS Proxy không phải query cache. Đôi khi index, cache, replica hoặc proxy đã đủ; không cần đổi toàn bộ database engine.
+
+TASK 3.4 — NETWORK
+
+Network performance phụ thuộc khoảng cách, số hop, bandwidth, protocol, packet loss và cách phân phối tải. Đặt compute gần data thường hiệu quả hơn chỉ tăng bandwidth. Cache tại edge có thể loại bỏ round trip về Region.
+
+Trong VPC, chọn CIDR đủ lớn và tránh overlap với mạng sẽ kết nối. VPC Peering phù hợp kết nối point-to-point và không transitive. Transit Gateway phù hợp mô hình hub-and-spoke cho nhiều VPC và on-premises network. PrivateLink dùng khi muốn expose riêng một service mà không mở full network routing.
+
+Chọn load balancer theo protocol. Application Load Balancer phù hợp HTTP và HTTPS, có routing theo host hoặc path. Network Load Balancer phù hợp TCP, UDP, TLS, hiệu năng cao hoặc cần static IP. Gateway Load Balancer dùng để chèn virtual appliance như firewall.
+
+Phân biệt ba dịch vụ global. CloudFront là CDN, cache HTTP content gần viewer và giảm tải origin. Global Accelerator cung cấp static anycast IP, đưa TCP hoặc UDP traffic qua AWS global network tới regional endpoint khỏe; phù hợp traffic không cache được. Route 53 là DNS và chọn endpoint theo routing policy. Nó không proxy mọi packet sau khi phân giải tên miền.
+
+Site-to-Site VPN nhanh triển khai và mã hóa qua Internet, nhưng performance có thể biến động. Direct Connect là kết nối private chuyên dụng, ổn định hơn nhưng triển khai lâu hơn. Direct Connect không tự mã hóa payload; nếu đề yêu cầu encryption, có thể cần kết hợp VPN.
+
+Bẫy cần nhớ: Internet Gateway không phải NAT. Public subnet không đảm bảo resource có public IP. VPC Peering không transitive. CloudFront dành cho HTTP content có thể cache, còn Global Accelerator tối ưu đường truyền TCP hoặc UDP không cache.
+
+TASK 3.5 — DATA INGESTION VÀ TRANSFORMATION
+
+Hãy hình dung pipeline gồm năm bước: source, ingest hoặc transfer, store, transform và catalog, cuối cùng là query hoặc visualize.
+
+Trước khi chọn dịch vụ, hỏi dữ liệu là file, record stream hay database change. Cần batch hay near real-time? Có cần ordering, replay hoặc nhiều consumer không? Output là S3 data lake, warehouse, search hay application?
+
+DataSync tự động hóa và xác minh việc transfer file hoặc object. Transfer Family cung cấp endpoint SFTP, FTPS hoặc FTP vào S3 hay EFS. Database Migration Service phù hợp replication và Change Data Capture của database. Snow Family phù hợp khi dữ liệu quá lớn và network không đáp ứng thời hạn. Storage Gateway phù hợp hybrid file, volume hoặc tape access.
+
+Kinesis Data Streams phù hợp record stream cần partition, ordering theo partition key, nhiều consumer và replay trong retention window. Kinesis Data Firehose phù hợp managed delivery có buffering tới destination và cần ít quyền điều khiển consumer hơn. Amazon MSK phù hợp khi Kafka là requirement. SQS là work queue, còn EventBridge là event routing bus; chúng không thay replayable stream trong mọi trường hợp.
+
+S3 thường lưu data lake. Glue Data Catalog giữ schema và metadata, không giữ raw data. Glue ETL biến đổi dữ liệu. Athena query S3 bằng SQL. Dùng Parquet hoặc ORC, partition theo cột thường được filter và tránh quá nhiều file nhỏ để giảm lượng dữ liệu scan. Redshift là data warehouse. Amazon QuickSight tạo phân tích và dashboard, không phải ETL engine.
+
+Để tăng performance, hãy phân bố partition key đều, batch record hợp lý, nén dữ liệu, decouple producer với consumer, và theo dõi lag, throttling cùng delivery error. Batch lớn giảm overhead nhưng tăng latency.
+
+Bẫy cần nhớ: DataSync không phải database CDC. DMS không phải công cụ copy file tổng quát. Firehose delivery khác Data Streams có consumer và replay. SQS queue khác ordered replayable stream. Athena không cần database server, nhưng cost và performance phụ thuộc bytes được scan.
+
+TỔNG KẾT
+
+Khi gặp câu hỏi Domain 3, hãy làm năm bước.
+
+Một, xác định access pattern và chỉ số mục tiêu: latency, IOPS, throughput, concurrency hay lag.
+
+Hai, tìm bottleneck nằm ở storage, compute, database, network hay data pipeline.
+
+Ba, chọn đúng loại dịch vụ trước khi chọn cấu hình: object, block hay file; EC2, Lambda hay container; relational, NoSQL hay cache; CloudFront hay Global Accelerator; batch, queue hay stream.
+
+Bốn, kiểm tra toàn bộ đường đi. EBS nhanh vẫn có thể bị EC2 giới hạn. Read replica không giúp write bottleneck. Producer nhanh nhưng consumer chậm vẫn tạo lag.
+
+Năm, loại đáp án giải sai mục tiêu. Multi-AZ giải availability, không mặc định giải read scaling. Provisioned Concurrency giảm cold start nhưng có cost. Direct Connect không tự mã hóa. Cache tăng tốc nhưng có consistency trade-off.
+
+Câu chốt để nhớ Domain 3 là: không có dịch vụ nhanh nhất cho mọi workload. Chỉ có giải pháp phù hợp nhất với access pattern, bottleneck và chỉ số mà đề bài yêu cầu.

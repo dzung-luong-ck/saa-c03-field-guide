@@ -11,7 +11,9 @@ import {
   CheckCircle2,
   ChevronRight,
   Clock3,
+  Download,
   GitBranch,
+  Headphones,
   ListChecks,
   Menu,
   Moon,
@@ -43,6 +45,45 @@ type GroupMeta = {
   label: string;
   shortLabel: string;
   order: number;
+};
+
+type DomainAudio = {
+  title: string;
+  src: string;
+  captions: string;
+  duration: string;
+  downloadName: string;
+};
+
+const domainAudioByOverviewPath: Record<string, DomainAudio> = {
+  '08-EXAM-GUIDE-DOMAINS/DOMAIN-1-SECURE/README.md': {
+    title: 'Domain 1 · Secure Architectures',
+    src: './audio/domain-1-secure-architectures.mp3',
+    captions: './audio/domain-1-secure-architectures-captions.vtt',
+    duration: '11 phút 31 giây',
+    downloadName: 'SAA-C03-Domain-1-Secure-Architectures.mp3',
+  },
+  '08-EXAM-GUIDE-DOMAINS/DOMAIN-2-RESILIENT/README.md': {
+    title: 'Domain 2 · Resilient Architectures',
+    src: './audio/domain-2-resilient-architectures.mp3',
+    captions: './audio/domain-2-resilient-architectures-captions.vtt',
+    duration: '9 phút 22 giây',
+    downloadName: 'SAA-C03-Domain-2-Resilient-Architectures.mp3',
+  },
+  '08-EXAM-GUIDE-DOMAINS/DOMAIN-3-HIGH-PERFORMING/README.md': {
+    title: 'Domain 3 · High-Performing Architectures',
+    src: './audio/domain-3-high-performing-architectures.mp3',
+    captions: './audio/domain-3-high-performing-architectures-captions.vtt',
+    duration: '11 phút 50 giây',
+    downloadName: 'SAA-C03-Domain-3-High-Performing-Architectures.mp3',
+  },
+  '08-EXAM-GUIDE-DOMAINS/DOMAIN-4-COST-OPTIMIZED/README.md': {
+    title: 'Domain 4 · Cost-Optimized Architectures',
+    src: './audio/domain-4-cost-optimized-architectures.mp3',
+    captions: './audio/domain-4-cost-optimized-architectures-captions.vtt',
+    duration: '9 phút 25 giây',
+    downloadName: 'SAA-C03-Domain-4-Cost-Optimized-Architectures.mp3',
+  },
 };
 
 const groups: GroupMeta[] = [
@@ -260,6 +301,7 @@ export default function StudyApp() {
   const isBeginnerArticle =
     activeArticle.path.startsWith('08-EXAM-GUIDE-DOMAINS/') ||
     activeArticle.path.includes('AWS-CHO-NGUOI-MOI');
+  const domainAudio = domainAudioByOverviewPath[activeArticle.path];
   const headings = useMemo(
     () => extractHeadings(activeArticle.content),
     [activeArticle.content],
@@ -498,6 +540,50 @@ export default function StudyApp() {
               <p className="mt-3 max-w-2xl text-base leading-7 text-muted-foreground">
                 {activeArticle.description}
               </p>
+              {domainAudio && (
+                <section
+                  className="mt-6 rounded-2xl border bg-muted/35 p-4 sm:p-5"
+                  aria-label={`Audio ${domainAudio.title}`}
+                >
+                  <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+                        <Headphones className="size-5" />
+                      </span>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-bold">
+                          {domainAudio.title}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {domainAudio.duration} · giọng đọc tiếng Việt
+                        </p>
+                      </div>
+                    </div>
+                    <a
+                      href={domainAudio.src}
+                      download={domainAudio.downloadName}
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+                    >
+                      <Download className="size-3.5" /> Tải MP3
+                    </a>
+                  </div>
+                  <audio
+                    className="h-11 w-full"
+                    controls
+                    preload="metadata"
+                    src={domainAudio.src}
+                  >
+                    <track
+                      default
+                      kind="captions"
+                      label="Tiếng Việt"
+                      src={domainAudio.captions}
+                      srcLang="vi"
+                    />
+                    Trình duyệt của bạn không hỗ trợ phát audio.
+                  </audio>
+                </section>
+              )}
               <Button
                 variant={
                   completed.has(activeArticle.id) ? 'secondary' : 'outline'

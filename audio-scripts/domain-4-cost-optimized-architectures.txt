@@ -1,0 +1,73 @@
+Chào bạn. Đây là bài nghe ôn tập Domain bốn của kỳ thi AWS Certified Solutions Architect Associate, mã SAA C không ba: thiết kế kiến trúc tối ưu chi phí.
+
+Domain này chiếm hai mươi phần trăm điểm thi. Ý quan trọng nhất cần nhớ là: tối ưu chi phí không có nghĩa là chọn thứ rẻ nhất. Đáp án đúng phải thỏa mãn yêu cầu về bảo mật, hiệu năng, độ sẵn sàng và khôi phục trước, rồi mới tìm phương án có tổng chi phí hợp lý nhất.
+
+Khi gặp câu hỏi về chi phí, hãy làm theo năm bước. Một, xác định các yêu cầu bắt buộc. Hai, tìm thành phần tạo ra chi phí lớn nhất. Ba, loại bỏ tài nguyên nhàn rỗi và điều chỉnh kích thước. Bốn, chọn mô hình giá hoặc lớp lưu trữ phù hợp với cách sử dụng. Năm, tiếp tục đo lường sau khi thay đổi. Đừng tối ưu chỉ bằng cảm giác.
+
+Domain bốn có bốn task: storage, compute, database và network. Chúng ta sẽ đi lần lượt.
+
+Task bốn chấm một là thiết kế giải pháp lưu trữ tối ưu chi phí.
+
+Chi phí lưu trữ không chỉ là số ghi ga bai mỗi tháng. Bạn còn có thể trả tiền cho request, retrieval, thời gian lưu tối thiểu, hiệu năng được cấp trước, snapshot, replication và data transfer. Vì vậy, một storage class có giá lưu mỗi ghi ga bai thấp nhất chưa chắc có tổng chi phí thấp nhất.
+
+Trước tiên, chọn đúng loại storage. S ba phù hợp với object, backup và data lake. E B S là block storage gắn với E C hai. E F S là hệ thống file Linux dùng chung. F S x phù hợp với những engine file chuyên biệt, như Windows file server hoặc Lustre. Instance Store là vùng tạm thời, tốc độ cao nhưng dữ liệu có thể mất khi instance dừng hoặc hỏng.
+
+Với S ba, hãy nhìn vào access pattern. Standard dành cho dữ liệu được truy cập thường xuyên. Intelligent Tiering phù hợp khi access pattern chưa biết hoặc thay đổi, nhưng nhớ rằng nó có phí theo dõi. Standard I A phù hợp với dữ liệu ít truy cập nhưng vẫn cần nhiều Availability Zone và truy xuất trong mili giây. One Zone I A chỉ nên dùng khi dữ liệu có thể tái tạo, hoặc đã có một bản sao khác. Các lớp Glacier phù hợp với archive, và bạn phải đối chiếu thời gian retrieval với R T O.
+
+Lifecycle policy có thể tự động chuyển object sang lớp rẻ hơn, xóa phiên bản cũ và hết hạn dữ liệu. Tuy nhiên, hãy để ý phí retrieval và thời gian lưu tối thiểu. Một object nhỏ, sống ngắn hoặc được đọc lại thường xuyên có thể tốn hơn nếu bị chuyển tier quá sớm.
+
+Với E B S, hãy right size cả dung lượng lẫn I O P S và throughput. Gia đình G P thường là lựa chọn cân bằng. Chỉ dùng provisioned I O P S khi workload thật sự cần. Xóa volume không còn gắn với instance và snapshot đã hết thời hạn lưu giữ. Nhưng đừng giảm hiệu năng chỉ dựa trên số trung bình; hãy xem cả thời điểm cao tải và yêu cầu khôi phục.
+
+Backup phải bắt đầu từ R P O, R T O và compliance. R P O quyết định tần suất backup. R T O ảnh hưởng nơi lưu và tốc độ restore. Compliance quyết định retention và khả năng chống sửa xóa. Replication không thay thế backup lịch sử, và giữ mọi backup mãi mãi cũng không phải chiến lược tốt.
+
+Bẫy thường gặp của task storage là chọn One Zone I A cho bản duy nhất của dữ liệu quan trọng; bật versioning nhưng không tạo lifecycle cho phiên bản cũ; hoặc nhân bản cross Region dù đề không yêu cầu. Hãy tính tổng chi phí, không chỉ giá storage.
+
+Task bốn chấm hai là thiết kế compute tối ưu chi phí.
+
+Công thức đơn giản là đơn giá capacity nhân với thời gian sử dụng. Bạn tối ưu bằng cách giảm capacity thừa, giảm thời gian nhàn rỗi, chọn purchasing model đúng và scale theo nhu cầu.
+
+Right sizing phải dựa trên metric: C P U, memory, network, E B S I O và mức sử dụng theo giờ. Development chỉ hoạt động giờ hành chính có thể schedule stop và start. Web stateless thay đổi theo tải có thể dùng Auto Scaling. Một instance gần như nhàn rỗi nên được resize, gộp hoặc loại bỏ. Tuy nhiên, không được giảm hệ thống production từ nhiều Availability Zone xuống một instance nếu yêu cầu độ sẵn sàng vẫn còn.
+
+On Demand phù hợp với nhu cầu ngắn hạn hoặc khó dự đoán. Savings Plans và Reserved Instances phù hợp hơn với baseline ổn định khi bạn chấp nhận cam kết. Spot tiết kiệm cho batch, worker hoặc workload stateless có thể retry và chịu gián đoạn. Capacity Reservation đảm bảo có capacity trong một Availability Zone, nhưng không đồng nghĩa với mức giảm giá tốt nhất.
+
+Một thiết kế hay là dùng commitment cho baseline ổn định, rồi dùng On Demand hoặc Spot cho phần burst tùy mức chịu lỗi. Đừng mua cam kết cho toàn bộ peak nếu peak chỉ xuất hiện vài giờ mỗi năm.
+
+Lambda trả theo request và thời gian chạy, phù hợp workload event driven, ít dùng hoặc biến động mạnh. Fargate giảm công sức quản node. E C S hoặc E K S trên E C hai có thể tối ưu bin packing và commitment nhưng phải quản cluster. E C hai cho nhiều quyền kiểm soát, song bạn trả tiền trong suốt thời gian instance chạy. Câu nói serverless luôn rẻ hơn là sai; với tải cao và đều, E C hai được right size có thể kinh tế hơn.
+
+Hãy chọn scaling metric liên hệ trực tiếp với công việc. Với queue worker, số message tồn trên mỗi worker thường hữu ích hơn C P U. Scheduled scaling phù hợp với pattern biết trước. Target tracking phù hợp khi hệ thống cần phản ứng theo demand.
+
+Bẫy compute gồm: nghĩ Savings Plans tự scale tài nguyên; dùng Spot cho database stateful không có kế hoạch phục hồi; hoặc chọn instance nhỏ đến mức throttling làm job chạy lâu hơn và tổng tiền tăng lên.
+
+Task bốn chấm ba là thiết kế database tối ưu chi phí.
+
+Database cost gồm compute, storage, I O, backup, replica, data transfer, license và cả công sức vận hành. Vì vậy, hãy bắt đầu từ access pattern.
+
+R D S hoặc Aurora phù hợp với SQL, join và transaction quan hệ. Dynamo D B phù hợp với key value hoặc document ở quy mô lớn khi truy vấn theo key rõ ràng. Elasti Cache phù hợp với cache và session. Redshift hoặc S ba kết hợp Athena phù hợp với analytics tùy workload. Open Search phù hợp với tìm kiếm toàn văn.
+
+Với R D S và Aurora, right size instance theo C P U, memory, connection và I O. Chọn commitment nếu baseline ổn định. Serverless có thể phù hợp khi tải thay đổi hoặc có thời gian nhàn rỗi, nhưng phải xem cấu hình capacity tối thiểu và tối đa.
+
+Với Dynamo D B, on demand phù hợp với traffic khó dự đoán hoặc tăng đột biến. Provisioned capacity kết hợp auto scaling có thể tiết kiệm hơn cho traffic ổn định và dự đoán được. Một partition key kém gây hot partition; tăng toàn bộ capacity không giải quyết được gốc vấn đề.
+
+Read replica chỉ nên thêm khi cần read scaling hoặc use case phù hợp. Multi A Z là chi phí cần thiết nếu S L A yêu cầu high availability. Cache có thể giảm truy vấn lặp lại, nhưng cũng thêm node và độ phức tạp invalidation. R D S Proxy giúp quản lý connection; nó không phải query cache.
+
+Bẫy database là xóa Multi A Z chỉ để giảm bill, giữ development database chạy cả ngày, hoặc tăng instance mãi trong khi nguyên nhân thật là query thiếu index. Hãy sửa đúng bottleneck.
+
+Task bốn chấm bốn là thiết kế network tối ưu chi phí.
+
+Network bill thường xuất hiện khi dữ liệu vượt qua một ranh giới: ra Internet, qua Availability Zone, qua Region, qua NAT Gateway hoặc qua một dịch vụ xử lý. Cách làm tốt nhất là vẽ data path và ghi số ghi ga bai đi qua từng hop.
+
+Đặt compute gần dữ liệu giúp tránh transfer không cần thiết. Nhưng cross Availability Zone đôi khi là chi phí hợp lý để đạt high availability. Đừng gom mọi thứ vào một Zone chỉ để giảm phí nếu đề yêu cầu hệ thống chịu lỗi.
+
+NAT Gateway có phí theo giờ và phí xử lý dữ liệu. Nếu private instances truy cập S ba hoặc Dynamo D B với lưu lượng lớn, gateway V P C endpoint phù hợp có thể giúp traffic không cần đi qua NAT. Với các dịch vụ khác, interface endpoint có mô hình giá riêng, nên không được mặc định mọi endpoint đều miễn phí.
+
+V P C peering phù hợp kết nối point to point ở quy mô nhỏ và không hỗ trợ transitive routing. Transit Gateway đơn giản hóa mô hình hub and spoke cho nhiều V P C và kết nối on premises, nhưng có phí attachment và xử lý dữ liệu. Private Link phù hợp khi chỉ muốn publish một service riêng, không nối toàn bộ hai network.
+
+Site to Site V P N nhanh triển khai và phù hợp lưu lượng nhỏ hoặc đường dự phòng. Direct Connect có chi phí port, circuit và nhà cung cấp, nhưng có thể hợp lý cho lưu lượng lớn, ổn định và yêu cầu đường truyền riêng. CloudFront thêm request cost nhưng có thể giảm origin transfer, origin compute và latency nếu nội dung cache được. Global Accelerator không phải cache.
+
+Bẫy network là chỉ so phí theo giờ mà quên phí trên mỗi ghi ga bai; dùng một NAT chung rồi tạo cross Zone traffic và điểm phụ thuộc vào một Zone; hoặc nghĩ Direct Connect tự động mã hóa dữ liệu.
+
+Cuối cùng, hãy ghi nhớ công thức làm bài cho cả domain bốn. Bước một: giữ nguyên các requirement bắt buộc. Bước hai: tìm cost driver. Bước ba: right size và xóa lãng phí. Bước bốn: chọn pricing, lifecycle, capacity model hoặc data path phù hợp. Bước năm: kiểm tra xem phương án có làm mất security, performance, availability hay khả năng recovery không.
+
+Một câu để chốt domain này: phương án tối ưu chi phí là phương án đạt yêu cầu với tổng chi phí sở hữu thấp nhất, chứ không phải tài nguyên có giá niêm yết thấp nhất.
+
+Bạn vừa hoàn thành bài nghe Domain bốn, Design Cost Optimized Architectures. Hãy thử tự nói lại bốn cost driver: storage, compute, database và network. Nếu bạn giải thích được vì sao một lựa chọn rẻ hơn mà vẫn giữ đúng requirement, bạn đã nắm được tư duy cốt lõi của domain này.

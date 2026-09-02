@@ -1,0 +1,385 @@
+WEBVTT
+
+00:00.100 --> 00:04.168
+DOMAIN 2: THIẾT KẾ KIẾN TRÚC CÓ KHẢ NĂNG PHỤC HỒI
+
+00:04.118 --> 00:05.636
+Xin chào bạn.
+
+00:05.636 --> 00:12.366
+Bài này ôn Domain 2 của kỳ thi AWS Solutions Architect Associate: Design Resilient Architectures.
+
+00:12.366 --> 00:16.261
+Domain này chiếm khoảng hai mươi sáu phần trăm điểm thi và gồm hai task.
+
+00:16.261 --> 00:20.412
+Task 2.1 là thiết kế kiến trúc có khả năng mở rộng và ít phụ thuộc.
+
+00:20.412 --> 00:24.832
+Task 2.2 là thiết kế kiến trúc có tính sẵn sàng cao hoặc khả năng chịu lỗi.
+
+00:24.832 --> 00:28.046
+Mental model quan trọng nhất là tách hai câu hỏi.
+
+00:28.046 --> 00:31.361
+Khi traffic tăng, hệ thống có scale được không?
+
+00:31.361 --> 00:35.312
+Đây là scalability, elasticity và decoupling.
+
+00:35.312 --> 00:38.828
+Khi một thành phần hỏng, hệ thống có tiếp tục phục vụ không?
+
+00:38.828 --> 00:42.578
+Đây là redundancy, failover và recovery.
+
+00:42.578 --> 00:44.910
+Scale tốt chưa chắc chịu lỗi tốt.
+
+00:44.910 --> 00:47.466
+Có backup cũng chưa chắc khôi phục nhanh.
+
+00:47.466 --> 00:48.671
+Phần một.
+
+00:48.671 --> 00:52.399
+Task 2.1: scalable và loosely coupled.
+
+00:52.399 --> 00:56.607
+Giả sử Service A gọi trực tiếp Service B và chờ kết quả.
+
+00:56.607 --> 01:02.020
+Nếu B chậm hoặc dừng, A cũng bị giữ connection, timeout và có thể cạn tài nguyên.
+
+01:02.020 --> 01:04.732
+Hai service đang phụ thuộc chặt vào nhau.
+
+01:04.732 --> 01:09.140
+Ta có thể đặt queue giữa A và B. A gửi công việc vào queue rồi tiếp tục.
+
+01:09.140 --> 01:12.276
+B lấy công việc ra xử lý theo tốc độ của mình.
+
+01:12.276 --> 01:16.060
+Queue hấp thụ traffic spike và giữ job khi worker tạm dừng.
+
+01:16.060 --> 01:22.131
+Vì vậy, khi đề nói xử lý bất đồng bộ, buffer spike hoặc không được mất job, hãy nghĩ tới SQS.
+
+01:22.131 --> 01:24.553
+Không phải mọi call đều cần queue.
+
+01:24.553 --> 01:28.002
+Đăng nhập hoặc lấy giá hiện tại thường cần phản hồi đồng bộ.
+
+01:28.002 --> 01:33.582
+Queue phù hợp với việc có thể xử lý sau, như resize ảnh, gửi email hoặc tạo báo cáo.
+
+01:33.582 --> 01:35.714
+Compute cũng nên stateless.
+
+01:35.714 --> 01:39.933
+Nghĩa là server không giữ session hay file bắt buộc trên chính instance đó.
+
+01:39.933 --> 01:44.453
+Session có thể đưa vào DynamoDB, ElastiCache hoặc cookie phù hợp.
+
+01:44.453 --> 01:48.169
+File upload có thể lưu trên S3 hoặc shared file system.
+
+01:48.169 --> 01:54.374
+Nhờ vậy, Auto Scaling Group, Lambda hoặc Fargate có thể thêm, xóa và thay thế compute dễ dàng.
+
+01:54.375 --> 02:00.178
+Sticky session chỉ là giải pháp tạm thời cho ứng dụng cũ; nó không loại bỏ rủi ro của local state.
+
+02:00.178 --> 02:04.040
+Vertical scaling là tăng C P U hoặc RAM cho một máy.
+
+02:04.040 --> 02:06.551
+Cách này đơn giản nhưng có giới hạn.
+
+02:06.551 --> 02:12.466
+Horizontal scaling là thêm nhiều máy hoặc worker, phù hợp với web stateless và workload phân tán.
+
+02:12.466 --> 02:15.390
+Metric dùng để scale phải phản ánh đúng nút thắt.
+
+02:15.390 --> 02:19.330
+Web server có thể scale theo C P U hoặc request trên mỗi target.
+
+02:19.330 --> 02:23.627
+Worker đọc SQS nên scale theo backlog hoặc tuổi của message cũ nhất.
+
+02:23.627 --> 02:28.549
+Nếu worker chờ I O và C P U thấp, scale theo C P U có thể sai.
+
+02:28.549 --> 02:31.406
+Hãy phân biệt các dịch vụ integration.
+
+02:31.406 --> 02:34.821
+SQS là hàng đợi có backlog cho consumer.
+
+02:34.821 --> 02:38.225
+SNS gửi một message tới nhiều subscriber.
+
+02:38.225 --> 02:43.928
+SNS kết hợp nhiều SQS queue tạo pattern fan-out, trong đó mỗi consumer có queue riêng.
+
+02:43.928 --> 02:49.363
+EventBridge route event theo source và nội dung, phù hợp cho AWS service hoặc SaaS.
+
+02:49.363 --> 02:55.290
+Kinesis Data Streams dùng cho luồng record liên tục, throughput lớn, replay và thứ tự trong từng shard.
+
+02:55.290 --> 03:00.089
+Step Functions điều phối workflow nhiều bước, có branch, retry và wait.
+
+03:00.089 --> 03:05.312
+API Gateway là cửa vào managed cho API, nhưng không thay durable queue.
+
+03:05.312 --> 03:12.265
+Với queue, nhớ ba ý. Consumer phải idempotent, tức là xử lý lại message không gây hậu quả sai như trừ tiền hai lần.
+
+03:12.265 --> 03:15.602
+Visibility timeout phải đủ dài cho việc xử lý.
+
+03:15.602 --> 03:20.881
+Message lỗi nhiều lần nên chuyển tới dead-letter queue, hay D L Q, để điều tra.
+
+03:20.881 --> 03:23.448
+D L Q không tự sửa lỗi.
+
+03:23.572 --> 03:27.472
+Về compute, E C 2 phù hợp khi cần kiểm soát hệ điều hành.
+
+03:27.422 --> 03:31.317
+Lambda phù hợp với xử lý event-driven và stateless.
+
+03:31.317 --> 03:35.559
+E C S dùng để điều phối container theo hệ sinh thái AWS.
+
+03:35.559 --> 03:38.974
+E K S dùng khi Kubernetes là yêu cầu thật sự.
+
+03:38.974 --> 03:42.947
+Fargate chạy container mà không cần trực tiếp quản lý worker node.
+
+03:42.947 --> 03:49.632
+Nếu đề nhấn mạnh least operational overhead, hãy ưu tiên managed service hoặc serverless khi chúng đáp ứng đủ yêu cầu.
+
+03:49.632 --> 03:51.317
+Cache cũng giúp scale.
+
+03:51.317 --> 03:55.146
+CloudFront cache nội dung gần người dùng và giảm tải origin.
+
+03:55.146 --> 03:58.538
+ElastiCache giữ dữ liệu thường dùng trong memory.
+
+03:58.538 --> 04:03.338
+Tuy nhiên, cache không nên là source of truth nếu mất cache sẽ làm dữ liệu nghiệp vụ sai.
+
+04:03.338 --> 04:05.592
+Ví dụ cho Task 2.1.
+
+04:05.592 --> 04:08.349
+Ứng dụng nhận ảnh upload tăng đột biến.
+
+04:08.349 --> 04:13.092
+Resize mất hai mươi giây, nhưng API phải phản hồi nhanh và không được mất job.
+
+04:13.092 --> 04:20.123
+Thiết kế phù hợp là lưu ảnh vào S3, gửi event tới SQS, rồi để Lambda hoặc nhóm worker tự động scale đọc queue.
+
+04:20.123 --> 04:27.155
+Worker phải idempotent, message lỗi đi vào D L Q, và output nên ghi vào prefix khác để tránh vòng lặp event.
+
+04:27.155 --> 04:31.686
+Bẫy của Task 2.1: load balancer phân phối request nhưng không lưu backlog.
+
+04:31.686 --> 04:34.956
+SNS không giữ backlog riêng giống SQS.
+
+04:34.956 --> 04:38.483
+Queue không tự bảo đảm thao tác nghiệp vụ exactly once.
+
+04:38.483 --> 04:41.730
+Vertical scaling không tạo high availability.
+
+04:41.730 --> 04:48.248
+Và container không tự động có nghĩa là serverless, vì E C S trên E C 2 vẫn cần quản lý capacity.
+
+04:48.248 --> 04:49.554
+Phần hai.
+
+04:49.554 --> 04:53.449
+Task 2.2: high availability và fault tolerance.
+
+04:53.449 --> 04:56.329
+Đầu tiên, xác định failure domain.
+
+04:56.329 --> 05:02.869
+Lỗi có thể nằm ở process, instance, physical host, Availability Zone, Region hoặc account.
+
+05:02.869 --> 05:06.362
+Bản dự phòng phải nằm ngoài failure domain cần bảo vệ.
+
+05:06.362 --> 05:13.817
+Hai E C 2 trong cùng một A Z không chịu được lỗi A Z. Backup trong cùng account với cùng quyền xóa cũng chưa bảo vệ tốt trước account compromise.
+
+05:13.817 --> 05:17.992
+High availability giảm downtime bằng redundancy và failover.
+
+05:17.992 --> 05:22.891
+Fault tolerance nghĩa là tiếp tục chạy với rất ít hoặc gần như không gián đoạn khi lỗi xảy ra.
+
+05:22.891 --> 05:26.373
+Durability nói về việc dữ liệu không bị mất lâu dài.
+
+05:26.373 --> 05:28.695
+Ba khái niệm này không giống nhau.
+
+05:28.695 --> 05:33.114
+R P O là lượng dữ liệu tối đa được phép mất, tính theo thời gian.
+
+05:33.114 --> 05:37.846
+R P O mười lăm phút nghĩa là có thể mất tối đa mười lăm phút dữ liệu gần nhất.
+
+05:37.846 --> 05:41.507
+R T O là thời gian tối đa hệ thống được phép ngừng.
+
+05:41.507 --> 05:44.085
+R P O nói về dữ liệu.
+
+05:44.085 --> 05:46.920
+R T O nói về thời gian khôi phục.
+
+05:46.920 --> 05:57.155
+Kiến trúc web high availability thường gồm Route 53, Application Load Balancer ở nhiều A Z, Auto Scaling Group có target tại nhiều private subnet, và database hỗ trợ failover.
+
+05:57.155 --> 05:59.521
+Application nên stateless.
+
+05:59.521 --> 06:02.958
+Health check phải nhận ra target có thực sự phục vụ được request.
+
+06:02.958 --> 06:09.074
+Đồng thời, cần tìm single point of failure tại network, database, cache và các dependency khác.
+
+06:09.074 --> 06:14.934
+Trong database, RDS Multi-AZ chủ yếu cung cấp availability và automatic failover.
+
+06:14.934 --> 06:18.103
+Read replica chủ yếu tăng read capacity.
+
+06:18.103 --> 06:22.199
+Replication tới read replica thường bất đồng bộ nên có thể lag.
+
+06:22.199 --> 06:26.820
+Backup giúp quay lại thời điểm trước lỗi logic, nhưng restore vẫn cần thời gian.
+
+06:26.820 --> 06:34.565
+RDS Proxy tái sử dụng connection và giảm connection storm trong use case phù hợp; nó không thay thế database high availability.
+
+06:34.565 --> 06:37.378
+Disaster recovery có bốn chiến lược.
+
+06:37.378 --> 06:40.659
+Backup and restore rẻ nhất nhưng phục hồi chậm nhất.
+
+06:40.659 --> 06:45.213
+Pilot light giữ data và phần lõi tối thiểu hoạt động tại Region dự phòng.
+
+06:45.213 --> 06:49.074
+Warm standby giữ một phiên bản thu nhỏ của toàn hệ thống đang chạy.
+
+06:49.074 --> 06:53.550
+Active-active cho nhiều site cùng phục vụ, nhanh nhất nhưng đắt và phức tạp nhất.
+
+06:53.668 --> 06:56.609
+Không chọn active-active chỉ vì nó mạnh nhất.
+
+06:56.559 --> 07:02.396
+Nếu doanh nghiệp chấp nhận R T O nhiều giờ và ưu tiên chi phí, backup and restore có thể đúng.
+
+07:02.396 --> 07:06.626
+Nếu R T O chỉ vài phút, snapshot mỗi ngày thường không đủ.
+
+07:06.626 --> 07:15.811
+Route 53 health check có thể chuyển DNS sang endpoint khác, nhưng failover không tức thời tuyệt đối vì resolver còn cache theo T T L. Load balancer loại target unhealthy.
+
+07:15.811 --> 07:18.400
+Auto Scaling thay instance lỗi.
+
+07:18.400 --> 07:24.862
+Database failover có thể làm connection bị ngắt, nên application cần retry với backoff và jitter.
+
+07:24.862 --> 07:27.943
+Request thay đổi dữ liệu còn cần idempotency.
+
+07:27.943 --> 07:30.264
+Ví dụ cho Task 2.2.
+
+07:30.264 --> 07:38.121
+Một ứng dụng relational phải chịu lỗi một Availability Zone, R T O dưới vài phút, không mất transaction đã commit và cần ít vận hành.
+
+07:38.121 --> 07:48.701
+Phương án phù hợp là Application Load Balancer và Auto Scaling Group trải trên nhiều A Z, application stateless, cùng RDS Multi-AZ hoặc Aurora có cấu hình high availability.
+
+07:48.701 --> 07:51.402
+Vẫn cần backup để xử lý xóa nhầm.
+
+07:51.402 --> 07:55.878
+Multi-AZ giải availability; backup giải point-in-time recovery.
+
+07:55.878 --> 08:00.309
+Bẫy của Task 2.2: backup bền nhưng restore vẫn có downtime.
+
+08:00.309 --> 08:03.545
+Multi-AZ không mặc định chịu lỗi cả Region.
+
+08:03.545 --> 08:06.681
+Read replica không giống synchronous standby.
+
+08:06.681 --> 08:13.422
+Hai tài nguyên trong cùng A Z không chịu được lỗi A Z. Health check quá sâu có thể loại toàn bộ fleet khi một dependency chung bị lỗi.
+
+08:13.422 --> 08:17.842
+Region dự phòng cũng phải có service quota đủ trước khi thảm họa xảy ra.
+
+08:17.842 --> 08:21.614
+Cuối cùng, dùng bốn câu hỏi cho mọi câu thi Domain 2.
+
+08:21.614 --> 08:25.443
+Một: đề đang nói về traffic tăng hay thành phần bị hỏng?
+
+08:25.443 --> 08:29.349
+Hai: bottleneck hoặc single point of failure nằm ở đâu?
+
+08:29.349 --> 08:34.516
+Ba: workload cần call đồng bộ, queue, fan-out, event routing hay stream?
+
+08:34.516 --> 08:40.264
+Bốn: failure domain, R P O, R T O và yêu cầu chi phí là gì?
+
+08:40.264 --> 08:45.755
+Nếu là traffic spike, nghĩ tới stateless compute, Auto Scaling, queue và cache.
+
+08:45.755 --> 08:49.103
+Nếu cần backlog bền vững, nghĩ tới SQS.
+
+08:49.103 --> 08:54.360
+Nếu một event cần nhiều consumer, nghĩ tới SNS kết hợp nhiều SQS queue.
+
+08:54.360 --> 09:00.286
+Nếu phải chịu lỗi instance hoặc A Z, nghĩ tới nhiều A Z, health check và automatic failover.
+
+09:00.286 --> 09:07.987
+Nếu phải chịu lỗi Region, chọn chiến lược disaster recovery theo R P O và R T O, không mặc định chọn giải pháp đắt nhất.
+
+09:07.987 --> 09:16.983
+Hãy nhớ: scale giải quyết tải tăng; decoupling ngăn các thành phần kéo nhau sập; high availability giảm downtime; disaster recovery giúp hệ thống trở lại sau thảm họa.
+
+09:16.983 --> 09:21.759
+Phân biệt đúng bốn mục tiêu này sẽ giúp bạn loại phần lớn đáp án gây nhiễu trong Domain 2.

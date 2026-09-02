@@ -1,0 +1,71 @@
+DOMAIN 1: DESIGN SECURE ARCHITECTURES
+
+Chào bạn. Trong bài này, chúng ta sẽ ôn Domain 1 của kỳ thi AWS Solutions Architect Associate, mã SAA-C03. Domain này chiếm ba mươi phần trăm điểm thi và gồm ba task: thiết kế quyền truy cập an toàn, thiết kế workload và application an toàn, và lựa chọn biện pháp bảo vệ dữ liệu phù hợp.
+
+Nếu bạn mới học AWS, đừng cố nhớ tất cả dịch vụ cùng lúc. Hãy dùng một mental model gồm năm câu hỏi. Một: ai đang gửi request? Hai: người hoặc workload đó được phép làm gì? Ba: request đi qua đường mạng nào? Bốn: dữ liệu được bảo vệ và phục hồi ra sao? Năm: làm thế nào để phát hiện hành vi bất thường? Năm câu hỏi này tương ứng với identity, authorization, network, data và detection.
+
+Phần một. Task 1.1: thiết kế quyền truy cập an toàn vào tài nguyên AWS.
+
+Hãy tưởng tượng tài khoản AWS là một tòa nhà. Authentication là bước kiểm tra danh tính tại cửa. Authorization là kiểm tra thẻ ra vào để biết người đó được vào phòng nào. IAM policy là nội dung ghi trên thẻ. IAM role là thẻ tạm thời được cấp khi một người hoặc một chương trình đảm nhận nhiệm vụ. Resource policy là quy định ngay tại cửa của một tài nguyên. Còn Service Control Policy, thường gọi là SCP, là nội quy đặt ra cho cả một nhóm tài khoản.
+
+Nguyên tắc đầu tiên là mặc định từ chối. Một request chỉ được thực hiện khi có một Allow phù hợp với action, resource và condition. Nếu có Explicit Deny áp dụng, Deny luôn thắng Allow. Permissions boundary, session policy và SCP không tự cấp quyền. Chúng chỉ đặt giới hạn tối đa cho quyền có thể sử dụng.
+
+Ví dụ, một developer có policy Administrator Access, nhưng SCP của tổ chức cấm xóa khóa KMS. Developer vẫn không thể xóa khóa. Đây là bẫy rất phổ biến: administrator không có nghĩa là vượt được Explicit Deny.
+
+Tiếp theo, phân biệt user và role. IAM user có thể có mật khẩu hoặc access key dài hạn, vì vậy chỉ nên dùng khi có yêu cầu legacy rõ ràng. Không nhúng access key vào source code, AMI hoặc user data. IAM role cung cấp temporary credentials qua STS và là lựa chọn mặc định cho EC2, Lambda, ECS, federation và truy cập giữa các account.
+
+Với role, nhớ hai loại policy. Trust policy trả lời ai được phép assume role. Permissions policy trả lời session sau khi assume role được làm gì. Nếu câu hỏi nói một ứng dụng trên EC2 phải gọi S3 mà không lưu access key, hãy chọn IAM role gắn với EC2.
+
+Với nhân viên truy cập nhiều AWS account, lựa chọn thường phù hợp là IAM Identity Center kết nối với hệ thống danh tính của công ty. Permission set phân phối quyền vào các account. AWS Organizations và Organizational Unit giúp tổ chức account, còn SCP đặt guardrail chung. Với khách hàng đăng nhập vào ứng dụng, thường chọn Amazon Cognito, không tạo hàng nghìn IAM user.
+
+Trong truy cập cross-account, có hai hướng chính. Assume role phù hợp khi principal cần một bộ quyền trong account đích. Resource-based policy phù hợp khi một tài nguyên như S3 bucket, SQS queue hoặc SNS topic cho principal account khác truy cập trực tiếp. Nếu bên thứ ba quản lý nhiều khách hàng, external ID có thể giúp giảm rủi ro confused deputy.
+
+Bẫy cần nhớ của Task 1.1: SCP không cấp quyền. Permissions boundary không cấp quyền. Trust policy không mô tả role được làm gì. Security Group không cấp quyền gọi API S3. Và IAM Identity Center dành cho workforce, trong khi Cognito thường dành cho người dùng cuối của application.
+
+Phần hai. Task 1.2: thiết kế workload và application an toàn.
+
+Ý tưởng chính là defense in depth, nghĩa là phòng thủ nhiều lớp. Một kiến trúc web điển hình có thể bắt đầu từ Route 53 và CloudFront, sau đó là Shield và WAF, rồi đến Application Load Balancer. Application chạy trong private subnet, database nằm trong private hoặc isolated subnet. Workload dùng IAM role, secret được lưu đúng chỗ, và logging được bật để phục vụ phát hiện sự cố.
+
+Public subnet là subnet có route đến Internet Gateway. Private subnet không có route trực tiếp đó. Tuy nhiên, chỉ tên public hay private là chưa đủ. Một EC2 muốn giao tiếp trực tiếp với Internet còn cần public IP và firewall phù hợp.
+
+Security Group hoạt động ở cấp resource hoặc network interface, có trạng thái, và chỉ có rule Allow. Network ACL hoạt động ở cấp subnet, không có trạng thái, và hỗ trợ cả Allow lẫn Deny. Vì Network ACL stateless, bạn phải cho phép traffic hai chiều và chú ý ephemeral ports. Trong thiết kế thông thường, hãy ưu tiên Security Group reference. Chẳng hạn, database chỉ nhận traffic từ Security Group của application, còn application chỉ nhận traffic từ Security Group của load balancer.
+
+NAT Gateway cho workload trong private subnet chủ động đi ra Internet. Nó không cho Internet chủ động mở kết nối vào EC2 private. VPC endpoint cho phép workload gọi các dịch vụ AWS được hỗ trợ qua đường private, giảm phụ thuộc vào NAT và public Internet. Nhưng endpoint policy không thay thế IAM policy hoặc resource policy.
+
+Với secret, Secrets Manager phù hợp khi password hoặc API secret cần rotation và workflow quản lý. Systems Manager Parameter Store phù hợp với configuration và một số secret tùy tier và tính năng. Application nên dùng IAM role để lấy secret lúc chạy. Không đặt password trong code, image, file môi trường đã commit hoặc EC2 user data.
+
+Để chọn dịch vụ bảo mật, hãy đọc động từ trong đề. AWS WAF bảo vệ request HTTP trước các kiểu tấn công như SQL injection, cross-site scripting, bot và request rate bất thường. Shield bảo vệ trước DDoS; Shield Standard có sẵn cho các dịch vụ được hỗ trợ, còn Shield Advanced dành cho yêu cầu bảo vệ và hỗ trợ nâng cao. GuardDuty phát hiện hành vi đáng ngờ từ các tín hiệu và log. Macie tìm dữ liệu nhạy cảm trong S3. Inspector quét lỗ hổng trên workload được hỗ trợ. Security Hub tổng hợp finding và security posture. Detective hỗ trợ điều tra mối quan hệ giữa tài nguyên và hoạt động.
+
+Hãy xét một ví dụ. Một website public dùng EC2, nhưng EC2 không được có public IP. Database không được truy cập từ Internet. Application cần đọc S3 và lấy password database có tự động rotation. Kiến trúc phù hợp là CloudFront và WAF ở phía trước, Application Load Balancer public, EC2 private, database private chỉ nhận traffic từ application Security Group, S3 gateway endpoint, và Secrets Manager kết hợp IAM instance role. NAT chỉ cần nếu application còn phải gọi Internet.
+
+Bẫy của Task 1.2: route table chỉ định đường đi, không phải firewall. Private subnet không tự mã hóa traffic. VPC endpoint không tự cấp permission. WAF không thay Security Group. Shield không sửa IAM policy. GuardDuty chủ yếu phát hiện, trong khi WAF và Shield bảo vệ ở các lớp khác nhau.
+
+Phần ba. Task 1.3: lựa chọn biện pháp bảo vệ dữ liệu.
+
+Với bất kỳ dữ liệu nào, hãy hỏi bốn câu. Ai được đọc hoặc ghi? Nếu dữ liệu bị lấy cắp, nó có đọc được không? Nếu dữ liệu bị xóa hoặc hỏng, ta có phục hồi được không? Và dữ liệu phải được giữ hay xóa vào thời điểm nào?
+
+Encryption không thay thế access control. Một principal có quyền đọc object nhưng không có quyền dùng khóa KMS có thể không giải mã được. Ngược lại, chỉ có quyền KMS cũng không tự tạo quyền đọc object S3. Bạn phải kiểm tra toàn bộ chuỗi permission.
+
+Dữ liệu at rest là dữ liệu trong S3, EBS hoặc database và thường được bảo vệ bằng mã hóa của dịch vụ hoặc KMS. Dữ liệu in transit là dữ liệu đang truyền trên mạng và thường được bảo vệ bằng TLS hoặc VPN khi phù hợp. Nếu đề nói mã hóa toàn bộ dữ liệu, hãy kiểm tra cả hai trạng thái.
+
+KMS dùng envelope encryption. Hiểu đơn giản, data key mã hóa lượng dữ liệu lớn, còn KMS key bảo vệ data key. Chọn customer managed KMS key khi doanh nghiệp cần tự kiểm soát key policy, audit hoặc rotation chi tiết. Key rotation thay đổi key material theo cơ chế được hỗ trợ; nó không có nghĩa toàn bộ ciphertext cũ lập tức được mã hóa lại.
+
+TLS bảo vệ kết nối. AWS Certificate Manager quản lý certificate cho các dịch vụ tích hợp. Nếu TLS kết thúc tại CloudFront hoặc load balancer, hãy kiểm tra chặng từ đó tới origin, vì yêu cầu end-to-end encryption đòi hỏi mọi chặng đều được bảo vệ.
+
+Với S3, Block Public Access giảm nguy cơ public ngoài ý muốn. Bucket policy, IAM policy và access point policy quyết định quyền truy cập. Versioning giúp phục hồi phiên bản bị ghi đè hoặc xóa nhầm. Lifecycle chuyển object sang lớp lưu trữ khác hoặc hết hạn theo thời gian. Object Lock cung cấp cơ chế lưu trữ không thể sửa hoặc xóa trong thời hạn retention, còn gọi là WORM. Compliance mode nghiêm ngặt hơn governance mode.
+
+Đừng nhầm backup, replication, versioning và Object Lock. Backup hoặc snapshot giúp quay về trạng thái trước đây. Replication tạo bản sao gần hiện tại ở nơi khác nhưng có thể sao chép cả lỗi logic hoặc thao tác xóa. Versioning giữ các phiên bản object. Object Lock ngăn sửa hoặc xóa trong thời gian đã đặt. Read replica cũng không phải historical backup.
+
+Ví dụ, hồ sơ tài chính trong S3 phải được giữ bảy năm, không ai được xóa sớm, bucket phải private, khóa do công ty kiểm soát và mọi truy cập phải được audit. Thiết kế phù hợp gồm S3 Versioning, Object Lock compliance retention, mã hóa SSE-KMS với customer managed key, Block Public Access, policy least privilege, CloudTrail data events và log retention. Lifecycle có thể chuyển dữ liệu sang archive class nếu thời gian truy xuất vẫn đáp ứng yêu cầu.
+
+Bẫy của Task 1.3: mã hóa không thay permission. Key policy sai có thể chặn principal dù IAM có Allow. Rotation không tự re-encrypt dữ liệu cũ. Replication không thay backup. Lifecycle không tự replicate dữ liệu. Object Lock cần versioning và không tự mã hóa object.
+
+Bây giờ là phần tổng kết.
+
+Domain 1 có thể được nhớ bằng ba lớp. Task 1.1 bảo vệ access: đúng identity, đúng role, đúng policy, đúng account và đúng guardrail. Task 1.2 bảo vệ workload: chia lớp mạng, giảm public exposure, dùng secret đúng cách, bảo vệ entry point và chọn dịch vụ detection theo đúng động từ. Task 1.3 bảo vệ data: kiểm soát quyền, mã hóa khi lưu và khi truyền, quản lý khóa, backup, versioning, retention và audit.
+
+Khi làm đề, hãy đi theo thứ tự sau. Xác định principal. Tìm Explicit Deny. Kiểm tra Allow và các guardrail. Theo dấu network path từ client tới database. Cuối cùng, theo dấu vòng đời dữ liệu từ lúc tạo, truyền, lưu, sao chép, backup cho tới khi xóa.
+
+Nếu nhớ được một câu duy nhất, hãy nhớ câu này: IAM đúng không thay thế network security; network kín không thay thế encryption; và encryption không thay thế quyền truy cập. Một kiến trúc an toàn cần cả ba lớp phối hợp với nhau.
+
+Bạn vừa hoàn thành phần ôn tập Domain 1, Design Secure Architectures.

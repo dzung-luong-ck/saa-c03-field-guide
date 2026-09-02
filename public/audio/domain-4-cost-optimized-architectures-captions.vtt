@@ -1,0 +1,343 @@
+WEBVTT
+
+00:00.100 --> 00:01.378
+Chào bạn.
+
+00:01.328 --> 00:09.988
+Đây là bài nghe ôn tập Domain bốn của kỳ thi AWS Certified Solutions Architect Associate, mã SAA C không ba: thiết kế kiến trúc tối ưu chi phí.
+
+00:09.988 --> 00:12.790
+Domain này chiếm hai mươi phần trăm điểm thi.
+
+00:12.790 --> 00:17.488
+Ý quan trọng nhất cần nhớ là: tối ưu chi phí không có nghĩa là chọn thứ rẻ nhất.
+
+00:17.488 --> 00:24.977
+Đáp án đúng phải thỏa mãn yêu cầu về bảo mật, hiệu năng, độ sẵn sàng và khôi phục trước, rồi mới tìm phương án có tổng chi phí hợp lý nhất.
+
+00:24.977 --> 00:28.337
+Khi gặp câu hỏi về chi phí, hãy làm theo năm bước.
+
+00:28.337 --> 00:30.915
+Một, xác định các yêu cầu bắt buộc.
+
+00:30.915 --> 00:34.040
+Hai, tìm thành phần tạo ra chi phí lớn nhất.
+
+00:34.040 --> 00:37.689
+Ba, loại bỏ tài nguyên nhàn rỗi và điều chỉnh kích thước.
+
+00:37.689 --> 00:41.651
+Bốn, chọn mô hình giá hoặc lớp lưu trữ phù hợp với cách sử dụng.
+
+00:41.651 --> 00:44.598
+Năm, tiếp tục đo lường sau khi thay đổi.
+
+00:44.598 --> 00:46.919
+Đừng tối ưu chỉ bằng cảm giác.
+
+00:46.919 --> 00:51.785
+Domain bốn có bốn task: storage, compute, database và network.
+
+00:51.785 --> 00:53.805
+Chúng ta sẽ đi lần lượt.
+
+00:53.805 --> 00:57.611
+Task bốn chấm một là thiết kế giải pháp lưu trữ tối ưu chi phí.
+
+00:57.611 --> 01:01.049
+Chi phí lưu trữ không chỉ là số ghi ga bai mỗi tháng.
+
+01:01.049 --> 01:09.386
+Bạn còn có thể trả tiền cho request, retrieval, thời gian lưu tối thiểu, hiệu năng được cấp trước, snapshot, replication và data transfer.
+
+01:09.386 --> 01:14.955
+Vì vậy, một storage class có giá lưu mỗi ghi ga bai thấp nhất chưa chắc có tổng chi phí thấp nhất.
+
+01:14.955 --> 01:17.678
+Trước tiên, chọn đúng loại storage.
+
+01:17.678 --> 01:21.294
+S ba phù hợp với object, backup và data lake.
+
+01:21.294 --> 01:24.776
+E B S là block storage gắn với E C hai.
+
+01:24.776 --> 01:27.779
+E F S là hệ thống file Linux dùng chung.
+
+01:27.779 --> 01:32.912
+F S x phù hợp với những engine file chuyên biệt, như Windows file server hoặc Lustre.
+
+01:32.912 --> 01:38.404
+Instance Store là vùng tạm thời, tốc độ cao nhưng dữ liệu có thể mất khi instance dừng hoặc hỏng.
+
+01:38.404 --> 01:41.618
+Với S ba, hãy nhìn vào access pattern.
+
+01:41.618 --> 01:44.620
+Standard dành cho dữ liệu được truy cập thường xuyên.
+
+01:44.620 --> 01:50.357
+Intelligent Tiering phù hợp khi access pattern chưa biết hoặc thay đổi, nhưng nhớ rằng nó có phí theo dõi.
+
+01:50.357 --> 01:56.261
+Standard I A phù hợp với dữ liệu ít truy cập nhưng vẫn cần nhiều Availability Zone và truy xuất trong mili giây.
+
+01:56.261 --> 02:01.249
+One Zone I A chỉ nên dùng khi dữ liệu có thể tái tạo, hoặc đã có một bản sao khác.
+
+02:01.249 --> 02:07.220
+Các lớp Glacier phù hợp với archive, và bạn phải đối chiếu thời gian retrieval với R T O.
+
+02:07.220 --> 02:13.169
+Lifecycle policy có thể tự động chuyển object sang lớp rẻ hơn, xóa phiên bản cũ và hết hạn dữ liệu.
+
+02:13.169 --> 02:17.388
+Tuy nhiên, hãy để ý phí retrieval và thời gian lưu tối thiểu.
+
+02:17.388 --> 02:22.957
+Một object nhỏ, sống ngắn hoặc được đọc lại thường xuyên có thể tốn hơn nếu bị chuyển tier quá sớm.
+
+02:22.957 --> 02:27.845
+Với E B S, hãy right size cả dung lượng lẫn I O P S và throughput.
+
+02:27.845 --> 02:30.758
+Gia đình G P thường là lựa chọn cân bằng.
+
+02:30.758 --> 02:34.564
+Chỉ dùng provisioned I O P S khi workload thật sự cần.
+
+02:34.564 --> 02:39.129
+Xóa volume không còn gắn với instance và snapshot đã hết thời hạn lưu giữ.
+
+02:39.129 --> 02:44.687
+Nhưng đừng giảm hiệu năng chỉ dựa trên số trung bình; hãy xem cả thời điểm cao tải và yêu cầu khôi phục.
+
+02:44.687 --> 02:49.497
+Backup phải bắt đầu từ R P O, R T O và compliance.
+
+02:49.497 --> 02:52.243
+R P O quyết định tần suất backup.
+
+02:52.243 --> 02:55.781
+R T O ảnh hưởng nơi lưu và tốc độ restore.
+
+02:55.781 --> 02:59.520
+Compliance quyết định retention và khả năng chống sửa xóa.
+
+02:59.520 --> 03:04.966
+Replication không thay thế backup lịch sử, và giữ mọi backup mãi mãi cũng không phải chiến lược tốt.
+
+03:04.966 --> 03:15.044
+Bẫy thường gặp của task storage là chọn One Zone I A cho bản duy nhất của dữ liệu quan trọng; bật versioning nhưng không tạo lifecycle cho phiên bản cũ; hoặc nhân bản cross Region dù đề không yêu cầu.
+
+03:15.044 --> 03:18.292
+Hãy tính tổng chi phí, không chỉ giá storage.
+
+03:18.292 --> 03:21.718
+Task bốn chấm hai là thiết kế compute tối ưu chi phí.
+
+03:21.844 --> 03:25.934
+Công thức đơn giản là đơn giá capacity nhân với thời gian sử dụng.
+
+03:25.884 --> 03:32.581
+Bạn tối ưu bằng cách giảm capacity thừa, giảm thời gian nhàn rỗi, chọn purchasing model đúng và scale theo nhu cầu.
+
+03:32.581 --> 03:39.567
+Right sizing phải dựa trên metric: C P U, memory, network, E B S I O và mức sử dụng theo giờ.
+
+03:39.567 --> 03:43.786
+Development chỉ hoạt động giờ hành chính có thể schedule stop và start.
+
+03:43.786 --> 03:47.435
+Web stateless thay đổi theo tải có thể dùng Auto Scaling.
+
+03:47.435 --> 03:51.688
+Một instance gần như nhàn rỗi nên được resize, gộp hoặc loại bỏ.
+
+03:51.688 --> 03:58.183
+Tuy nhiên, không được giảm hệ thống production từ nhiều Availability Zone xuống một instance nếu yêu cầu độ sẵn sàng vẫn còn.
+
+03:58.183 --> 04:01.788
+On Demand phù hợp với nhu cầu ngắn hạn hoặc khó dự đoán.
+
+04:01.788 --> 04:07.268
+Savings Plans và Reserved Instances phù hợp hơn với baseline ổn định khi bạn chấp nhận cam kết.
+
+04:07.268 --> 04:12.246
+Spot tiết kiệm cho batch, worker hoặc workload stateless có thể retry và chịu gián đoạn.
+
+04:12.246 --> 04:19.177
+Capacity Reservation đảm bảo có capacity trong một Availability Zone, nhưng không đồng nghĩa với mức giảm giá tốt nhất.
+
+04:19.177 --> 04:25.739
+Một thiết kế hay là dùng commitment cho baseline ổn định, rồi dùng On Demand hoặc Spot cho phần burst tùy mức chịu lỗi.
+
+04:25.739 --> 04:29.824
+Đừng mua cam kết cho toàn bộ peak nếu peak chỉ xuất hiện vài giờ mỗi năm.
+
+04:29.824 --> 04:35.572
+Lambda trả theo request và thời gian chạy, phù hợp workload event driven, ít dùng hoặc biến động mạnh.
+
+04:35.572 --> 04:37.804
+Fargate giảm công sức quản node.
+
+04:37.804 --> 04:43.819
+E C S hoặc E K S trên E C hai có thể tối ưu bin packing và commitment nhưng phải quản cluster.
+
+04:43.819 --> 04:48.552
+E C hai cho nhiều quyền kiểm soát, song bạn trả tiền trong suốt thời gian instance chạy.
+
+04:48.552 --> 04:54.958
+Câu nói serverless luôn rẻ hơn là sai; với tải cao và đều, E C hai được right size có thể kinh tế hơn.
+
+04:54.958 --> 04:58.306
+Hãy chọn scaling metric liên hệ trực tiếp với công việc.
+
+04:58.306 --> 05:05.170
+Với queue worker, số message tồn trên mỗi worker thường hữu ích hơn C P U. Scheduled scaling phù hợp với pattern biết trước.
+
+05:05.170 --> 05:08.875
+Target tracking phù hợp khi hệ thống cần phản ứng theo demand.
+
+05:08.875 --> 05:19.389
+Bẫy compute gồm: nghĩ Savings Plans tự scale tài nguyên; dùng Spot cho database stateful không có kế hoạch phục hồi; hoặc chọn instance nhỏ đến mức throttling làm job chạy lâu hơn và tổng tiền tăng lên.
+
+05:19.389 --> 05:22.971
+Task bốn chấm ba là thiết kế database tối ưu chi phí.
+
+05:22.971 --> 05:30.962
+Database cost gồm compute, storage, I O, backup, replica, data transfer, license và cả công sức vận hành.
+
+05:30.962 --> 05:34.132
+Vì vậy, hãy bắt đầu từ access pattern.
+
+05:34.132 --> 05:39.489
+R D S hoặc Aurora phù hợp với SQL, join và transaction quan hệ.
+
+05:39.489 --> 05:45.036
+Dynamo D B phù hợp với key value hoặc document ở quy mô lớn khi truy vấn theo key rõ ràng.
+
+05:45.036 --> 05:48.206
+Elasti Cache phù hợp với cache và session.
+
+05:48.206 --> 05:52.648
+Redshift hoặc S ba kết hợp Athena phù hợp với analytics tùy workload.
+
+05:52.648 --> 05:55.493
+Open Search phù hợp với tìm kiếm toàn văn.
+
+05:55.493 --> 06:04.344
+Với R D S và Aurora, right size instance theo C P U, memory, connection và I O. Chọn commitment nếu baseline ổn định.
+
+06:04.344 --> 06:11.230
+Serverless có thể phù hợp khi tải thay đổi hoặc có thời gian nhàn rỗi, nhưng phải xem cấu hình capacity tối thiểu và tối đa.
+
+06:11.230 --> 06:16.520
+Với Dynamo D B, on demand phù hợp với traffic khó dự đoán hoặc tăng đột biến.
+
+06:16.520 --> 06:22.402
+Provisioned capacity kết hợp auto scaling có thể tiết kiệm hơn cho traffic ổn định và dự đoán được.
+
+06:22.402 --> 06:28.351
+Một partition key kém gây hot partition; tăng toàn bộ capacity không giải quyết được gốc vấn đề.
+
+06:28.351 --> 06:32.525
+Read replica chỉ nên thêm khi cần read scaling hoặc use case phù hợp.
+
+06:32.525 --> 06:37.424
+Multi A Z là chi phí cần thiết nếu S L A yêu cầu high availability.
+
+06:37.424 --> 06:42.391
+Cache có thể giảm truy vấn lặp lại, nhưng cũng thêm node và độ phức tạp invalidation.
+
+06:42.391 --> 06:47.078
+R D S Proxy giúp quản lý connection; nó không phải query cache.
+
+06:47.212 --> 06:55.945
+Bẫy database là xóa Multi A Z chỉ để giảm bill, giữ development database chạy cả ngày, hoặc tăng instance mãi trong khi nguyên nhân thật là query thiếu index.
+
+06:55.895 --> 06:57.982
+Hãy sửa đúng bottleneck.
+
+06:57.982 --> 07:01.420
+Task bốn chấm bốn là thiết kế network tối ưu chi phí.
+
+07:01.420 --> 07:10.404
+Network bill thường xuất hiện khi dữ liệu vượt qua một ranh giới: ra Internet, qua Availability Zone, qua Region, qua NAT Gateway hoặc qua một dịch vụ xử lý.
+
+07:10.404 --> 07:14.768
+Cách làm tốt nhất là vẽ data path và ghi số ghi ga bai đi qua từng hop.
+
+07:14.768 --> 07:18.250
+Đặt compute gần dữ liệu giúp tránh transfer không cần thiết.
+
+07:18.250 --> 07:22.960
+Nhưng cross Availability Zone đôi khi là chi phí hợp lý để đạt high availability.
+
+07:22.960 --> 07:27.580
+Đừng gom mọi thứ vào một Zone chỉ để giảm phí nếu đề yêu cầu hệ thống chịu lỗi.
+
+07:27.580 --> 07:31.241
+NAT Gateway có phí theo giờ và phí xử lý dữ liệu.
+
+07:31.241 --> 07:39.366
+Nếu private instances truy cập S ba hoặc Dynamo D B với lưu lượng lớn, gateway V P C endpoint phù hợp có thể giúp traffic không cần đi qua NAT.
+
+07:39.366 --> 07:45.683
+Với các dịch vụ khác, interface endpoint có mô hình giá riêng, nên không được mặc định mọi endpoint đều miễn phí.
+
+07:45.683 --> 07:51.286
+V P C peering phù hợp kết nối point to point ở quy mô nhỏ và không hỗ trợ transitive routing.
+
+07:51.286 --> 07:58.696
+Transit Gateway đơn giản hóa mô hình hub and spoke cho nhiều V P C và kết nối on premises, nhưng có phí attachment và xử lý dữ liệu.
+
+07:58.696 --> 08:03.696
+Private Link phù hợp khi chỉ muốn publish một service riêng, không nối toàn bộ hai network.
+
+08:03.696 --> 08:08.406
+Site to Site V P N nhanh triển khai và phù hợp lưu lượng nhỏ hoặc đường dự phòng.
+
+08:08.406 --> 08:15.683
+Direct Connect có chi phí port, circuit và nhà cung cấp, nhưng có thể hợp lý cho lưu lượng lớn, ổn định và yêu cầu đường truyền riêng.
+
+08:15.683 --> 08:22.257
+CloudFront thêm request cost nhưng có thể giảm origin transfer, origin compute và latency nếu nội dung cache được.
+
+08:22.257 --> 08:24.980
+Global Accelerator không phải cache.
+
+08:24.980 --> 08:34.935
+Bẫy network là chỉ so phí theo giờ mà quên phí trên mỗi ghi ga bai; dùng một NAT chung rồi tạo cross Zone traffic và điểm phụ thuộc vào một Zone; hoặc nghĩ Direct Connect tự động mã hóa dữ liệu.
+
+08:34.935 --> 08:38.752
+Cuối cùng, hãy ghi nhớ công thức làm bài cho cả domain bốn.
+
+08:38.752 --> 08:41.553
+Bước một: giữ nguyên các requirement bắt buộc.
+
+08:41.553 --> 08:44.254
+Bước hai: tìm cost driver.
+
+08:44.254 --> 08:47.513
+Bước ba: right size và xóa lãng phí.
+
+08:47.513 --> 08:52.949
+Bước bốn: chọn pricing, lifecycle, capacity model hoặc data path phù hợp.
+
+08:52.949 --> 08:59.611
+Bước năm: kiểm tra xem phương án có làm mất security, performance, availability hay khả năng recovery không.
+
+08:59.611 --> 09:07.603
+Một câu để chốt domain này: phương án tối ưu chi phí là phương án đạt yêu cầu với tổng chi phí sở hữu thấp nhất, chứ không phải tài nguyên có giá niêm yết thấp nhất.
+
+09:07.603 --> 09:12.524
+Bạn vừa hoàn thành bài nghe Domain bốn, Design Cost Optimized Architectures.
+
+09:12.524 --> 09:18.239
+Hãy thử tự nói lại bốn cost driver: storage, compute, database và network.
+
+09:18.239 --> 09:24.779
+Nếu bạn giải thích được vì sao một lựa chọn rẻ hơn mà vẫn giữ đúng requirement, bạn đã nắm được tư duy cốt lõi của domain này.

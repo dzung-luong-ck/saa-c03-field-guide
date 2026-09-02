@@ -1,0 +1,69 @@
+DOMAIN 2: THIẾT KẾ KIẾN TRÚC CÓ KHẢ NĂNG PHỤC HỒI
+
+Xin chào bạn. Bài này ôn Domain 2 của kỳ thi AWS Solutions Architect Associate: Design Resilient Architectures. Domain này chiếm khoảng hai mươi sáu phần trăm điểm thi và gồm hai task.
+
+Task 2.1 là thiết kế kiến trúc có khả năng mở rộng và ít phụ thuộc. Task 2.2 là thiết kế kiến trúc có tính sẵn sàng cao hoặc khả năng chịu lỗi.
+
+Mental model quan trọng nhất là tách hai câu hỏi. Khi traffic tăng, hệ thống có scale được không? Đây là scalability, elasticity và decoupling. Khi một thành phần hỏng, hệ thống có tiếp tục phục vụ không? Đây là redundancy, failover và recovery. Scale tốt chưa chắc chịu lỗi tốt. Có backup cũng chưa chắc khôi phục nhanh.
+
+Phần một. Task 2.1: scalable và loosely coupled.
+
+Giả sử Service A gọi trực tiếp Service B và chờ kết quả. Nếu B chậm hoặc dừng, A cũng bị giữ connection, timeout và có thể cạn tài nguyên. Hai service đang phụ thuộc chặt vào nhau.
+
+Ta có thể đặt queue giữa A và B. A gửi công việc vào queue rồi tiếp tục. B lấy công việc ra xử lý theo tốc độ của mình. Queue hấp thụ traffic spike và giữ job khi worker tạm dừng. Vì vậy, khi đề nói xử lý bất đồng bộ, buffer spike hoặc không được mất job, hãy nghĩ tới SQS.
+
+Không phải mọi call đều cần queue. Đăng nhập hoặc lấy giá hiện tại thường cần phản hồi đồng bộ. Queue phù hợp với việc có thể xử lý sau, như resize ảnh, gửi email hoặc tạo báo cáo.
+
+Compute cũng nên stateless. Nghĩa là server không giữ session hay file bắt buộc trên chính instance đó. Session có thể đưa vào DynamoDB, ElastiCache hoặc cookie phù hợp. File upload có thể lưu trên S3 hoặc shared file system. Nhờ vậy, Auto Scaling Group, Lambda hoặc Fargate có thể thêm, xóa và thay thế compute dễ dàng. Sticky session chỉ là giải pháp tạm thời cho ứng dụng cũ; nó không loại bỏ rủi ro của local state.
+
+Vertical scaling là tăng C P U hoặc RAM cho một máy. Cách này đơn giản nhưng có giới hạn. Horizontal scaling là thêm nhiều máy hoặc worker, phù hợp với web stateless và workload phân tán.
+
+Metric dùng để scale phải phản ánh đúng nút thắt. Web server có thể scale theo C P U hoặc request trên mỗi target. Worker đọc SQS nên scale theo backlog hoặc tuổi của message cũ nhất. Nếu worker chờ I O và C P U thấp, scale theo C P U có thể sai.
+
+Hãy phân biệt các dịch vụ integration. SQS là hàng đợi có backlog cho consumer. SNS gửi một message tới nhiều subscriber. SNS kết hợp nhiều SQS queue tạo pattern fan-out, trong đó mỗi consumer có queue riêng. EventBridge route event theo source và nội dung, phù hợp cho AWS service hoặc SaaS. Kinesis Data Streams dùng cho luồng record liên tục, throughput lớn, replay và thứ tự trong từng shard. Step Functions điều phối workflow nhiều bước, có branch, retry và wait. API Gateway là cửa vào managed cho API, nhưng không thay durable queue.
+
+Với queue, nhớ ba ý. Consumer phải idempotent, tức là xử lý lại message không gây hậu quả sai như trừ tiền hai lần. Visibility timeout phải đủ dài cho việc xử lý. Message lỗi nhiều lần nên chuyển tới dead-letter queue, hay D L Q, để điều tra. D L Q không tự sửa lỗi.
+
+Về compute, E C 2 phù hợp khi cần kiểm soát hệ điều hành. Lambda phù hợp với xử lý event-driven và stateless. E C S dùng để điều phối container theo hệ sinh thái AWS. E K S dùng khi Kubernetes là yêu cầu thật sự. Fargate chạy container mà không cần trực tiếp quản lý worker node. Nếu đề nhấn mạnh least operational overhead, hãy ưu tiên managed service hoặc serverless khi chúng đáp ứng đủ yêu cầu.
+
+Cache cũng giúp scale. CloudFront cache nội dung gần người dùng và giảm tải origin. ElastiCache giữ dữ liệu thường dùng trong memory. Tuy nhiên, cache không nên là source of truth nếu mất cache sẽ làm dữ liệu nghiệp vụ sai.
+
+Ví dụ cho Task 2.1. Ứng dụng nhận ảnh upload tăng đột biến. Resize mất hai mươi giây, nhưng API phải phản hồi nhanh và không được mất job. Thiết kế phù hợp là lưu ảnh vào S3, gửi event tới SQS, rồi để Lambda hoặc nhóm worker tự động scale đọc queue. Worker phải idempotent, message lỗi đi vào D L Q, và output nên ghi vào prefix khác để tránh vòng lặp event.
+
+Bẫy của Task 2.1: load balancer phân phối request nhưng không lưu backlog. SNS không giữ backlog riêng giống SQS. Queue không tự bảo đảm thao tác nghiệp vụ exactly once. Vertical scaling không tạo high availability. Và container không tự động có nghĩa là serverless, vì E C S trên E C 2 vẫn cần quản lý capacity.
+
+Phần hai. Task 2.2: high availability và fault tolerance.
+
+Đầu tiên, xác định failure domain. Lỗi có thể nằm ở process, instance, physical host, Availability Zone, Region hoặc account. Bản dự phòng phải nằm ngoài failure domain cần bảo vệ. Hai E C 2 trong cùng một A Z không chịu được lỗi A Z. Backup trong cùng account với cùng quyền xóa cũng chưa bảo vệ tốt trước account compromise.
+
+High availability giảm downtime bằng redundancy và failover. Fault tolerance nghĩa là tiếp tục chạy với rất ít hoặc gần như không gián đoạn khi lỗi xảy ra. Durability nói về việc dữ liệu không bị mất lâu dài. Ba khái niệm này không giống nhau.
+
+R P O là lượng dữ liệu tối đa được phép mất, tính theo thời gian. R P O mười lăm phút nghĩa là có thể mất tối đa mười lăm phút dữ liệu gần nhất. R T O là thời gian tối đa hệ thống được phép ngừng. R P O nói về dữ liệu. R T O nói về thời gian khôi phục.
+
+Kiến trúc web high availability thường gồm Route 53, Application Load Balancer ở nhiều A Z, Auto Scaling Group có target tại nhiều private subnet, và database hỗ trợ failover. Application nên stateless. Health check phải nhận ra target có thực sự phục vụ được request. Đồng thời, cần tìm single point of failure tại network, database, cache và các dependency khác.
+
+Trong database, RDS Multi-AZ chủ yếu cung cấp availability và automatic failover. Read replica chủ yếu tăng read capacity. Replication tới read replica thường bất đồng bộ nên có thể lag. Backup giúp quay lại thời điểm trước lỗi logic, nhưng restore vẫn cần thời gian. RDS Proxy tái sử dụng connection và giảm connection storm trong use case phù hợp; nó không thay thế database high availability.
+
+Disaster recovery có bốn chiến lược. Backup and restore rẻ nhất nhưng phục hồi chậm nhất. Pilot light giữ data và phần lõi tối thiểu hoạt động tại Region dự phòng. Warm standby giữ một phiên bản thu nhỏ của toàn hệ thống đang chạy. Active-active cho nhiều site cùng phục vụ, nhanh nhất nhưng đắt và phức tạp nhất.
+
+Không chọn active-active chỉ vì nó mạnh nhất. Nếu doanh nghiệp chấp nhận R T O nhiều giờ và ưu tiên chi phí, backup and restore có thể đúng. Nếu R T O chỉ vài phút, snapshot mỗi ngày thường không đủ.
+
+Route 53 health check có thể chuyển DNS sang endpoint khác, nhưng failover không tức thời tuyệt đối vì resolver còn cache theo T T L. Load balancer loại target unhealthy. Auto Scaling thay instance lỗi. Database failover có thể làm connection bị ngắt, nên application cần retry với backoff và jitter. Request thay đổi dữ liệu còn cần idempotency.
+
+Ví dụ cho Task 2.2. Một ứng dụng relational phải chịu lỗi một Availability Zone, R T O dưới vài phút, không mất transaction đã commit và cần ít vận hành. Phương án phù hợp là Application Load Balancer và Auto Scaling Group trải trên nhiều A Z, application stateless, cùng RDS Multi-AZ hoặc Aurora có cấu hình high availability. Vẫn cần backup để xử lý xóa nhầm. Multi-AZ giải availability; backup giải point-in-time recovery.
+
+Bẫy của Task 2.2: backup bền nhưng restore vẫn có downtime. Multi-AZ không mặc định chịu lỗi cả Region. Read replica không giống synchronous standby. Hai tài nguyên trong cùng A Z không chịu được lỗi A Z. Health check quá sâu có thể loại toàn bộ fleet khi một dependency chung bị lỗi. Region dự phòng cũng phải có service quota đủ trước khi thảm họa xảy ra.
+
+Cuối cùng, dùng bốn câu hỏi cho mọi câu thi Domain 2.
+
+Một: đề đang nói về traffic tăng hay thành phần bị hỏng?
+
+Hai: bottleneck hoặc single point of failure nằm ở đâu?
+
+Ba: workload cần call đồng bộ, queue, fan-out, event routing hay stream?
+
+Bốn: failure domain, R P O, R T O và yêu cầu chi phí là gì?
+
+Nếu là traffic spike, nghĩ tới stateless compute, Auto Scaling, queue và cache. Nếu cần backlog bền vững, nghĩ tới SQS. Nếu một event cần nhiều consumer, nghĩ tới SNS kết hợp nhiều SQS queue. Nếu phải chịu lỗi instance hoặc A Z, nghĩ tới nhiều A Z, health check và automatic failover. Nếu phải chịu lỗi Region, chọn chiến lược disaster recovery theo R P O và R T O, không mặc định chọn giải pháp đắt nhất.
+
+Hãy nhớ: scale giải quyết tải tăng; decoupling ngăn các thành phần kéo nhau sập; high availability giảm downtime; disaster recovery giúp hệ thống trở lại sau thảm họa. Phân biệt đúng bốn mục tiêu này sẽ giúp bạn loại phần lớn đáp án gây nhiễu trong Domain 2.

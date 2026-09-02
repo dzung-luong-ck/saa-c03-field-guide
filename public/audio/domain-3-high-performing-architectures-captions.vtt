@@ -1,0 +1,487 @@
+WEBVTT
+
+00:00.100 --> 00:03.878
+DOMAIN 3 — THIẾT KẾ KIẾN TRÚC HIỆU NĂNG CAO
+
+00:03.828 --> 00:05.111
+Chào bạn.
+
+00:05.111 --> 00:10.904
+Bài này ôn Domain 3 của kỳ thi SAA-C03: Design High-Performing Architectures.
+
+00:10.904 --> 00:19.620
+Domain này chiếm khoảng hai mươi bốn phần trăm số điểm và gồm năm task: storage, compute, database, network, và data ingestion cùng transformation.
+
+00:19.620 --> 00:27.098
+Trước khi học dịch vụ, hãy nhớ mental model: đo triệu chứng, tìm nút thắt, chọn đúng lớp, tối ưu hoặc scale, rồi đo lại.
+
+00:27.098 --> 00:29.843
+CPU cao có thể do thiếu compute.
+
+00:29.843 --> 00:35.301
+Nhưng CPU thấp mà ứng dụng vẫn chậm có thể do đang chờ storage, database hoặc network.
+
+00:35.301 --> 00:38.783
+Trong đề thi, đừng chọn dịch vụ mạnh nhất theo cảm tính.
+
+00:38.783 --> 00:46.607
+Hãy tìm access pattern, bottleneck và chỉ số đề yêu cầu, như latency, IOPS, throughput, concurrency hoặc lag.
+
+00:46.607 --> 00:50.122
+TASK 3.1 — STORAGE
+
+00:50.122 --> 00:56.450
+Câu hỏi đầu tiên không phải S3 hay EBS nhanh hơn, mà là ứng dụng cần object, block hay file storage.
+
+00:56.450 --> 00:59.966
+Object storage truy cập dữ liệu bằng key qua API.
+
+00:59.966 --> 01:05.312
+Amazon S3 phù hợp cho static asset, backup và data lake ở quy mô lớn.
+
+01:05.312 --> 01:08.649
+Block storage giống một ổ đĩa gắn vào hệ điều hành.
+
+01:08.649 --> 01:13.158
+Amazon EBS phù hợp cho boot volume hoặc database trên EC2.
+
+01:13.158 --> 01:16.350
+File storage cho phép nhiều máy dùng chung cây thư mục.
+
+01:16.350 --> 01:20.256
+Amazon EFS phù hợp với Linux và NFS.
+
+01:20.256 --> 01:26.216
+FSx for Windows File Server phù hợp khi đề nhắc Windows, SMB hoặc Active Directory.
+
+01:26.216 --> 01:31.272
+FSx for Lustre phù hợp với HPC và xử lý file cần throughput rất cao.
+
+01:31.272 --> 01:33.169
+Phân biệt ba chỉ số.
+
+01:33.169 --> 01:38.850
+IOPS là số thao tác đọc ghi mỗi giây, quan trọng với database có nhiều request nhỏ và ngẫu nhiên.
+
+01:38.850 --> 01:44.263
+Throughput là lượng dữ liệu truyền mỗi giây, quan trọng với video, analytics và file lớn.
+
+01:44.263 --> 01:49.330
+Latency là thời gian hoàn thành một thao tác, quan trọng với transaction cần phản hồi nhanh.
+
+01:49.330 --> 01:52.310
+Throughput cao chưa chắc IOPS cao.
+
+01:52.310 --> 01:57.756
+Với S3, multipart upload giúp tải object lớn theo nhiều phần và retry từng phần.
+
+01:57.756 --> 02:00.401
+CloudFront cache nội dung gần người dùng.
+
+02:00.401 --> 02:04.676
+Transfer Acceleration có thể hỗ trợ client ở xa Region.
+
+02:04.676 --> 02:12.332
+Với EBS, SSD thường phù hợp random transaction, còn HDD phù hợp sequential throughput trong use case được hỗ trợ.
+
+02:12.332 --> 02:17.935
+Hiệu năng EBS còn bị giới hạn bởi EC2 instance, nên nâng volume chưa chắc đã hết nghẽn.
+
+02:17.935 --> 02:22.734
+Bẫy cần nhớ: Instance Store rất nhanh nhưng không phải persistent storage.
+
+02:22.734 --> 02:27.299
+EBS thuộc một Availability Zone và không thay shared file system cho nhiều máy.
+
+02:27.299 --> 02:29.933
+EFS không phải object storage.
+
+02:29.933 --> 02:33.203
+S3 không phải POSIX file system truyền thống.
+
+02:33.203 --> 02:36.886
+TASK 3.2 — COMPUTE
+
+02:36.886 --> 02:41.328
+Elastic nghĩa là capacity tự tăng khi tải tăng và giảm khi tải giảm.
+
+02:41.328 --> 02:46.116
+High-performing là đạt đúng latency và throughput, không phải luôn dùng máy lớn nhất.
+
+02:46.116 --> 02:50.758
+Chọn EC2 khi cần toàn quyền hệ điều hành, driver hoặc workload dài.
+
+02:50.758 --> 02:54.732
+Chọn Lambda cho tác vụ ngắn, stateless và chạy theo event.
+
+02:54.732 --> 02:59.419
+Chọn ECS để orchestration container theo hệ sinh thái AWS.
+
+02:59.419 --> 03:02.499
+Chọn EKS khi requirement bắt buộc Kubernetes.
+
+03:02.499 --> 03:06.037
+Chọn Fargate khi muốn chạy container mà không quản node.
+
+03:06.037 --> 03:09.921
+Chọn AWS Batch cho batch job có queue và scheduler.
+
+03:09.921 --> 03:12.979
+Chọn EMR cho Spark hoặc Hadoop.
+
+03:12.979 --> 03:16.651
+Với EC2, chọn instance family theo nút thắt.
+
+03:16.651 --> 03:19.252
+Compute optimized cho CPU.
+
+03:19.252 --> 03:22.243
+Memory optimized cho working set lớn.
+
+03:22.243 --> 03:25.613
+Storage optimized cho local I/O cao.
+
+03:25.613 --> 03:30.323
+Accelerated computing cho GPU, machine learning hoặc HPC.
+
+03:30.323 --> 03:33.593
+Auto Scaling phải dùng metric phản ánh nhu cầu thật.
+
+03:33.593 --> 03:38.292
+Web server có thể scale theo request count per target, CPU hoặc latency.
+
+03:38.292 --> 03:42.968
+SQS worker nên scale theo backlog trên mỗi instance hoặc tuổi message cũ nhất.
+
+03:42.968 --> 03:46.183
+Stream consumer nên theo lag hoặc iterator age.
+
+03:46.183 --> 03:50.133
+Average CPU có thể che giấu một queue hay shard đang nghẽn.
+
+03:50.260 --> 03:53.881
+Với Lambda, tăng memory thường cũng tăng CPU.
+
+03:53.831 --> 03:57.749
+Provisioned Concurrency giúp giảm cold start nhưng phát sinh chi phí.
+
+03:57.749 --> 04:01.432
+Reserved Concurrency giới hạn hoặc bảo vệ capacity.
+
+04:01.432 --> 04:07.637
+Vì event có thể được giao lại, function nên idempotent, nghĩa là chạy lại không tạo kết quả sai hoặc trùng lặp.
+
+04:07.637 --> 04:15.327
+Nếu API phải giữ request rất lâu để chạy job, hãy decouple bằng SQS hoặc workflow, trả phản hồi sớm và để worker scale theo backlog.
+
+04:15.327 --> 04:19.189
+Bẫy cần nhớ: scale up không tự tạo High Availability.
+
+04:19.189 --> 04:21.655
+ECS không đồng nghĩa Fargate.
+
+04:21.655 --> 04:24.836
+EKS không phải mặc định cho mọi container.
+
+04:24.836 --> 04:29.590
+Spot Instance có thể bị thu hồi, nên workload phải chịu lỗi và retry được.
+
+04:29.590 --> 04:33.218
+TASK 3.3 — DATABASE
+
+04:33.218 --> 04:35.706
+Hãy bắt đầu bằng access pattern.
+
+04:35.706 --> 04:38.552
+Ứng dụng query bằng key hay join nhiều bảng?
+
+04:38.552 --> 04:40.472
+Đọc nhiều hay ghi nhiều?
+
+04:40.472 --> 04:42.771
+Có cần transaction mạnh không?
+
+04:42.771 --> 04:45.439
+Có chấp nhận dữ liệu cũ vài giây không?
+
+04:45.439 --> 04:50.773
+RDS hoặc Aurora phù hợp khi cần SQL, join và transaction quan hệ.
+
+04:50.773 --> 04:56.086
+DynamoDB phù hợp với key-value hoặc document, access pattern biết trước và scale lớn.
+
+04:56.086 --> 04:59.903
+ElastiCache phù hợp cho cache, session hoặc leaderboard.
+
+04:59.903 --> 05:02.336
+OpenSearch phù hợp full-text search.
+
+05:02.336 --> 05:05.160
+Redshift phù hợp analytical warehouse.
+
+05:05.160 --> 05:10.762
+Trong RDS, read replica giúp scale read, nhưng ứng dụng phải gửi truy vấn đọc tới replica.
+
+05:10.762 --> 05:16.052
+Multi-AZ chủ yếu phục vụ availability và failover, không phải read scaling mặc định.
+
+05:16.052 --> 05:18.106
+Đây là bẫy rất phổ biến.
+
+05:18.106 --> 05:20.874
+Database có giới hạn connection.
+
+05:20.874 --> 05:24.758
+Lambda hoặc traffic spike có thể tạo connection storm.
+
+05:24.758 --> 05:28.061
+Connection pool giúp tái sử dụng connection.
+
+05:28.061 --> 05:35.193
+RDS Proxy quản lý pool và hỗ trợ failover trong use case phù hợp, nhưng không sửa được query thiếu index hoặc schema sai.
+
+05:35.193 --> 05:38.976
+Với DynamoDB, partition key phải phân bố request đều.
+
+05:38.976 --> 05:42.916
+Một hot key có thể tạo bottleneck dù bảng còn capacity.
+
+05:42.916 --> 05:45.517
+Sort key hỗ trợ query theo range.
+
+05:45.517 --> 05:50.851
+Global Secondary Index tạo access pattern khác nhưng có chi phí và consistency trade-off.
+
+05:50.851 --> 05:54.657
+Tránh dùng Scan cho đường truy cập chính nếu có thể Query theo key.
+
+05:54.657 --> 05:57.548
+Trong cache-aside, ứng dụng đọc cache trước.
+
+05:57.548 --> 06:02.034
+Nếu cache miss, ứng dụng đọc database, ghi vào cache rồi trả kết quả.
+
+06:02.034 --> 06:07.336
+Cache giảm latency và tải database, nhưng cần TTL và invalidation.
+
+06:07.336 --> 06:09.512
+Cache không phải source of truth.
+
+06:09.512 --> 06:13.497
+Bẫy cần nhớ: read replica không giải write bottleneck.
+
+06:13.497 --> 06:16.108
+Multi-AZ khác read replica.
+
+06:16.108 --> 06:18.988
+RDS Proxy không phải query cache.
+
+06:18.988 --> 06:24.892
+Đôi khi index, cache, replica hoặc proxy đã đủ; không cần đổi toàn bộ database engine.
+
+06:24.892 --> 06:27.693
+TASK 3.4 — NETWORK
+
+06:27.693 --> 06:34.177
+Network performance phụ thuộc khoảng cách, số hop, bandwidth, protocol, packet loss và cách phân phối tải.
+
+06:34.177 --> 06:37.860
+Đặt compute gần data thường hiệu quả hơn chỉ tăng bandwidth.
+
+06:37.860 --> 06:41.197
+Cache tại edge có thể loại bỏ round trip về Region.
+
+06:41.197 --> 06:46.566
+Trong VPC, chọn CIDR đủ lớn và tránh overlap với mạng sẽ kết nối.
+
+06:46.566 --> 06:50.840
+VPC Peering phù hợp kết nối point-to-point và không transitive.
+
+06:50.840 --> 06:56.052
+Transit Gateway phù hợp mô hình hub-and-spoke cho nhiều VPC và on-premises network.
+
+06:56.052 --> 07:00.729
+PrivateLink dùng khi muốn expose riêng một service mà không mở full network routing.
+
+07:00.729 --> 07:03.418
+Chọn load balancer theo protocol.
+
+07:03.418 --> 07:09.501
+Application Load Balancer phù hợp HTTP và HTTPS, có routing theo host hoặc path.
+
+07:09.501 --> 07:16.220
+Network Load Balancer phù hợp TCP, UDP, TLS, hiệu năng cao hoặc cần static IP.
+
+07:16.220 --> 07:20.639
+Gateway Load Balancer dùng để chèn virtual appliance như firewall.
+
+07:20.639 --> 07:23.050
+Phân biệt ba dịch vụ global.
+
+07:23.050 --> 07:28.887
+CloudFront là CDN, cache HTTP content gần viewer và giảm tải origin.
+
+07:28.887 --> 07:39.278
+Global Accelerator cung cấp static anycast IP, đưa TCP hoặc UDP traffic qua AWS global network tới regional endpoint khỏe; phù hợp traffic không cache được.
+
+07:39.278 --> 07:43.474
+Route 53 là DNS và chọn endpoint theo routing policy.
+
+07:43.474 --> 07:46.968
+Nó không proxy mọi packet sau khi phân giải tên miền.
+
+07:47.092 --> 07:52.800
+Site-to-Site VPN nhanh triển khai và mã hóa qua Internet, nhưng performance có thể biến động.
+
+07:52.750 --> 07:57.460
+Direct Connect là kết nối private chuyên dụng, ổn định hơn nhưng triển khai lâu hơn.
+
+07:57.460 --> 08:03.442
+Direct Connect không tự mã hóa payload; nếu đề yêu cầu encryption, có thể cần kết hợp VPN.
+
+08:03.442 --> 08:07.036
+Bẫy cần nhớ: Internet Gateway không phải NAT.
+
+08:07.036 --> 08:10.596
+Public subnet không đảm bảo resource có public IP.
+
+08:10.596 --> 08:13.364
+VPC Peering không transitive.
+
+08:13.364 --> 08:20.552
+CloudFront dành cho HTTP content có thể cache, còn Global Accelerator tối ưu đường truyền TCP hoặc UDP không cache.
+
+08:20.552 --> 08:27.215
+TASK 3.5 — DATA INGESTION VÀ TRANSFORMATION
+
+08:27.215 --> 08:35.496
+Hãy hình dung pipeline gồm năm bước: source, ingest hoặc transfer, store, transform và catalog, cuối cùng là query hoặc visualize.
+
+08:35.496 --> 08:40.496
+Trước khi chọn dịch vụ, hỏi dữ liệu là file, record stream hay database change.
+
+08:40.496 --> 08:42.594
+Cần batch hay near real-time?
+
+08:42.594 --> 08:46.288
+Có cần ordering, replay hoặc nhiều consumer không?
+
+08:46.288 --> 08:50.742
+Output là S3 data lake, warehouse, search hay application?
+
+08:50.742 --> 08:54.681
+DataSync tự động hóa và xác minh việc transfer file hoặc object.
+
+08:54.681 --> 09:01.099
+Transfer Family cung cấp endpoint SFTP, FTPS hoặc FTP vào S3 hay EFS.
+
+09:01.099 --> 09:06.936
+Database Migration Service phù hợp replication và Change Data Capture của database.
+
+09:06.936 --> 09:11.400
+Snow Family phù hợp khi dữ liệu quá lớn và network không đáp ứng thời hạn.
+
+09:11.400 --> 09:15.719
+Storage Gateway phù hợp hybrid file, volume hoặc tape access.
+
+09:15.719 --> 09:24.000
+Kinesis Data Streams phù hợp record stream cần partition, ordering theo partition key, nhiều consumer và replay trong retention window.
+
+09:24.000 --> 09:30.820
+Kinesis Data Firehose phù hợp managed delivery có buffering tới destination và cần ít quyền điều khiển consumer hơn.
+
+09:30.820 --> 09:34.659
+Amazon MSK phù hợp khi Kafka là requirement.
+
+09:34.659 --> 09:41.221
+SQS là work queue, còn EventBridge là event routing bus; chúng không thay replayable stream trong mọi trường hợp.
+
+09:41.221 --> 09:43.465
+S3 thường lưu data lake.
+
+09:43.465 --> 09:48.308
+Glue Data Catalog giữ schema và metadata, không giữ raw data.
+
+09:48.308 --> 09:51.032
+Glue ETL biến đổi dữ liệu.
+
+09:51.032 --> 09:54.201
+Athena query S3 bằng SQL.
+
+09:54.201 --> 10:01.065
+Dùng Parquet hoặc ORC, partition theo cột thường được filter và tránh quá nhiều file nhỏ để giảm lượng dữ liệu scan.
+
+10:01.065 --> 10:03.442
+Redshift là data warehouse.
+
+10:03.442 --> 10:08.219
+Amazon QuickSight tạo phân tích và dashboard, không phải ETL engine.
+
+10:08.219 --> 10:18.956
+Để tăng performance, hãy phân bố partition key đều, batch record hợp lý, nén dữ liệu, decouple producer với consumer, và theo dõi lag, throttling cùng delivery error.
+
+10:18.956 --> 10:22.092
+Batch lớn giảm overhead nhưng tăng latency.
+
+10:22.092 --> 10:26.065
+Bẫy cần nhớ: DataSync không phải database CDC.
+
+10:26.065 --> 10:29.246
+DMS không phải công cụ copy file tổng quát.
+
+10:29.246 --> 10:33.320
+Firehose delivery khác Data Streams có consumer và replay.
+
+10:33.320 --> 10:36.467
+SQS queue khác ordered replayable stream.
+
+10:36.467 --> 10:41.668
+Athena không cần database server, nhưng cost và performance phụ thuộc bytes được scan.
+
+10:41.668 --> 10:42.907
+TỔNG KẾT
+
+10:42.907 --> 10:46.021
+Khi gặp câu hỏi Domain 3, hãy làm năm bước.
+
+10:46.021 --> 10:53.085
+Một, xác định access pattern và chỉ số mục tiêu: latency, IOPS, throughput, concurrency hay lag.
+
+10:53.085 --> 10:59.346
+Hai, tìm bottleneck nằm ở storage, compute, database, network hay data pipeline.
+
+10:59.346 --> 11:11.545
+Ba, chọn đúng loại dịch vụ trước khi chọn cấu hình: object, block hay file; EC2, Lambda hay container; relational, NoSQL hay cache; CloudFront hay Global Accelerator; batch, queue hay stream.
+
+11:11.545 --> 11:14.112
+Bốn, kiểm tra toàn bộ đường đi.
+
+11:14.112 --> 11:17.460
+EBS nhanh vẫn có thể bị EC2 giới hạn.
+
+11:17.460 --> 11:20.451
+Read replica không giúp write bottleneck.
+
+11:20.451 --> 11:23.822
+Producer nhanh nhưng consumer chậm vẫn tạo lag.
+
+11:23.822 --> 11:26.623
+Năm, loại đáp án giải sai mục tiêu.
+
+11:26.623 --> 11:30.753
+Multi-AZ giải availability, không mặc định giải read scaling.
+
+11:30.753 --> 11:34.224
+Provisioned Concurrency giảm cold start nhưng có cost.
+
+11:34.224 --> 11:36.735
+Direct Connect không tự mã hóa.
+
+11:36.735 --> 11:39.603
+Cache tăng tốc nhưng có consistency trade-off.
+
+11:39.603 --> 11:44.146
+Câu chốt để nhớ Domain 3 là: không có dịch vụ nhanh nhất cho mọi workload.
+
+11:44.146 --> 11:49.603
+Chỉ có giải pháp phù hợp nhất với access pattern, bottleneck và chỉ số mà đề bài yêu cầu.

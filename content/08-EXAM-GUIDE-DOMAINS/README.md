@@ -4,6 +4,15 @@ Phần này sắp xếp kiến thức đúng theo **4 domain và 14 task stateme
 
 > **Nếu bạn hoàn toàn mới:** đọc [AWS từ số 0](../00-BAT-DAU/00-AWS-CHO-NGUOI-MOI.md) trước. Sau đó quay lại đây và học Task 1.1 → 4.4. Khi một task nhắc tới dịch vụ lạ, mở bài chuyên sâu được liên kết trong task đó.
 
+## Bài nghe theo domain
+
+Mỗi trang tổng quan domain có một bài nghe tiếng Việt và nút tải MP3 để ôn khi không tiện đọc:
+
+- [Nghe Domain 1 — Secure Architectures](DOMAIN-1-SECURE/README.md)
+- [Nghe Domain 2 — Resilient Architectures](DOMAIN-2-RESILIENT/README.md)
+- [Nghe Domain 3 — High-Performing Architectures](DOMAIN-3-HIGH-PERFORMING/README.md)
+- [Nghe Domain 4 — Cost-Optimized Architectures](DOMAIN-4-COST-OPTIMIZED/README.md)
+
 ## 1. Bản đồ chính thức
 
 | Domain | Trọng số | Số task | Câu hỏi trung tâm |

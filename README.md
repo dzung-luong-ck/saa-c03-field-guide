@@ -11,6 +11,7 @@ Website học AWS Certified Solutions Architect – Associate (SAA-C03) bằng t
 ## Tính năng
 
 - 14 bài theo từng Task Statement trong 4 domain chính thức của Exam Guide.
+- 4 bài nghe MP3 tiếng Việt theo từng domain, có trình phát và nút tải trực tiếp.
 - Hai bài nhập môn “AWS từ số 0” và từ điển thuật ngữ cho beginner.
 - Thư viện chuyên sâu theo lộ trình từ ngày 1 đến ngày 7.
 - Render đầy đủ Markdown, bảng, code block và liên kết giữa các bài.
@@ -39,6 +40,10 @@ npm run build
 Workflow [`.github/workflows/deploy-pages.yml`](./.github/workflows/deploy-pages.yml) tự động build bản static và deploy mỗi khi có commit mới trên nhánh `main`. Có thể chạy thủ công từ tab **Actions** bằng nút **Run workflow**.
 
 Nội dung học nằm trong [`content/`](./content). Website không đưa file PDF nguồn lên repository.
+
+## Audio theo domain
+
+File MP3 nằm trong [`public/audio/`](./public/audio); kịch bản đọc nằm trong [`audio-scripts/`](./audio-scripts) để có thể sửa và xuất lại giọng đọc.
 
 ## Lưu ý
 

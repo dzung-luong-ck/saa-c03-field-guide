@@ -1,0 +1,448 @@
+WEBVTT
+
+00:00.100 --> 00:05.697
+DOMAIN 1: DESIGN SECURE ARCHITECTURES
+
+00:05.647 --> 00:06.930
+Chào bạn.
+
+00:06.930 --> 00:13.950
+Trong bài này, chúng ta sẽ ôn Domain 1 của kỳ thi AWS Solutions Architect Associate, mã SAA-C03.
+
+00:13.950 --> 00:23.225
+Domain này chiếm ba mươi phần trăm điểm thi và gồm ba task: thiết kế quyền truy cập an toàn, thiết kế workload và application an toàn, và lựa chọn biện pháp bảo vệ dữ liệu phù hợp.
+
+00:23.225 --> 00:27.444
+Nếu bạn mới học AWS, đừng cố nhớ tất cả dịch vụ cùng lúc.
+
+00:27.444 --> 00:30.524
+Hãy dùng một mental model gồm năm câu hỏi.
+
+00:30.524 --> 00:32.566
+Một: ai đang gửi request?
+
+00:32.566 --> 00:35.691
+Hai: người hoặc workload đó được phép làm gì?
+
+00:35.691 --> 00:38.214
+Ba: request đi qua đường mạng nào?
+
+00:38.214 --> 00:41.573
+Bốn: dữ liệu được bảo vệ và phục hồi ra sao?
+
+00:41.573 --> 00:44.866
+Năm: làm thế nào để phát hiện hành vi bất thường?
+
+00:44.866 --> 00:51.250
+Năm câu hỏi này tương ứng với identity, authorization, network, data và detection.
+
+00:51.250 --> 00:52.455
+Phần một.
+
+00:52.455 --> 00:56.852
+Task 1.1: thiết kế quyền truy cập an toàn vào tài nguyên AWS.
+
+00:56.852 --> 01:00.390
+Hãy tưởng tượng tài khoản AWS là một tòa nhà.
+
+01:00.390 --> 01:03.694
+Authentication là bước kiểm tra danh tính tại cửa.
+
+01:03.694 --> 01:08.247
+Authorization là kiểm tra thẻ ra vào để biết người đó được vào phòng nào.
+
+01:08.247 --> 01:11.473
+IAM policy là nội dung ghi trên thẻ.
+
+01:11.473 --> 01:16.082
+IAM role là thẻ tạm thời được cấp khi một người hoặc một chương trình đảm nhận nhiệm vụ.
+
+01:16.082 --> 01:19.810
+Resource policy là quy định ngay tại cửa của một tài nguyên.
+
+01:19.810 --> 01:25.959
+Còn Service Control Policy, thường gọi là SCP, là nội quy đặt ra cho cả một nhóm tài khoản.
+
+01:25.959 --> 01:28.694
+Nguyên tắc đầu tiên là mặc định từ chối.
+
+01:28.694 --> 01:34.029
+Một request chỉ được thực hiện khi có một Allow phù hợp với action, resource và condition.
+
+01:34.029 --> 01:38.058
+Nếu có Explicit Deny áp dụng, Deny luôn thắng Allow.
+
+01:38.058 --> 01:42.924
+Permissions boundary, session policy và SCP không tự cấp quyền.
+
+01:42.924 --> 01:46.227
+Chúng chỉ đặt giới hạn tối đa cho quyền có thể sử dụng.
+
+01:46.227 --> 01:53.214
+Ví dụ, một developer có policy Administrator Access, nhưng SCP của tổ chức cấm xóa khóa KMS.
+
+01:53.214 --> 01:55.870
+Developer vẫn không thể xóa khóa.
+
+01:55.870 --> 02:00.859
+Đây là bẫy rất phổ biến: administrator không có nghĩa là vượt được Explicit Deny.
+
+02:00.859 --> 02:03.683
+Tiếp theo, phân biệt user và role.
+
+02:03.683 --> 02:10.189
+IAM user có thể có mật khẩu hoặc access key dài hạn, vì vậy chỉ nên dùng khi có yêu cầu legacy rõ ràng.
+
+02:10.189 --> 02:14.531
+Không nhúng access key vào source code, AMI hoặc user data.
+
+02:14.531 --> 02:24.040
+IAM role cung cấp temporary credentials qua STS và là lựa chọn mặc định cho EC2, Lambda, ECS, federation và truy cập giữa các account.
+
+02:24.040 --> 02:26.863
+Với role, nhớ hai loại policy.
+
+02:26.863 --> 02:30.100
+Trust policy trả lời ai được phép assume role.
+
+02:30.100 --> 02:34.352
+Permissions policy trả lời session sau khi assume role được làm gì.
+
+02:34.352 --> 02:41.372
+Nếu câu hỏi nói một ứng dụng trên EC2 phải gọi S3 mà không lưu access key, hãy chọn IAM role gắn với EC2.
+
+02:41.372 --> 02:49.374
+Với nhân viên truy cập nhiều AWS account, lựa chọn thường phù hợp là IAM Identity Center kết nối với hệ thống danh tính của công ty.
+
+02:49.374 --> 02:52.544
+Permission set phân phối quyền vào các account.
+
+02:52.544 --> 02:59.084
+AWS Organizations và Organizational Unit giúp tổ chức account, còn SCP đặt guardrail chung.
+
+02:59.084 --> 03:05.323
+Với khách hàng đăng nhập vào ứng dụng, thường chọn Amazon Cognito, không tạo hàng nghìn IAM user.
+
+03:05.323 --> 03:08.482
+Trong truy cập cross-account, có hai hướng chính.
+
+03:08.482 --> 03:12.388
+Assume role phù hợp khi principal cần một bộ quyền trong account đích.
+
+03:12.388 --> 03:20.200
+Resource-based policy phù hợp khi một tài nguyên như S3 bucket, SQS queue hoặc SNS topic cho principal account khác truy cập trực tiếp.
+
+03:20.200 --> 03:25.892
+Nếu bên thứ ba quản lý nhiều khách hàng, external ID có thể giúp giảm rủi ro confused deputy.
+
+03:25.892 --> 03:29.810
+Bẫy cần nhớ của Task 1.1: SCP không cấp quyền.
+
+03:29.810 --> 03:32.444
+Permissions boundary không cấp quyền.
+
+03:32.444 --> 03:35.424
+Trust policy không mô tả role được làm gì.
+
+03:35.424 --> 03:39.129
+Security Group không cấp quyền gọi API S3.
+
+03:39.129 --> 03:45.904
+Và IAM Identity Center dành cho workforce, trong khi Cognito thường dành cho người dùng cuối của application.
+
+03:46.036 --> 03:47.336
+Phần hai.
+
+03:47.286 --> 03:51.304
+Task 1.2: thiết kế workload và application an toàn.
+
+03:51.304 --> 03:55.210
+Ý tưởng chính là defense in depth, nghĩa là phòng thủ nhiều lớp.
+
+03:55.210 --> 04:03.603
+Một kiến trúc web điển hình có thể bắt đầu từ Route 53 và CloudFront, sau đó là Shield và WAF, rồi đến Application Load Balancer.
+
+04:03.603 --> 04:08.826
+Application chạy trong private subnet, database nằm trong private hoặc isolated subnet.
+
+04:08.826 --> 04:15.098
+Workload dùng IAM role, secret được lưu đúng chỗ, và logging được bật để phục vụ phát hiện sự cố.
+
+04:15.098 --> 04:19.027
+Public subnet là subnet có route đến Internet Gateway.
+
+04:19.027 --> 04:21.761
+Private subnet không có route trực tiếp đó.
+
+04:21.761 --> 04:25.277
+Tuy nhiên, chỉ tên public hay private là chưa đủ.
+
+04:25.277 --> 04:30.679
+Một EC2 muốn giao tiếp trực tiếp với Internet còn cần public IP và firewall phù hợp.
+
+04:30.679 --> 04:37.174
+Security Group hoạt động ở cấp resource hoặc network interface, có trạng thái, và chỉ có rule Allow.
+
+04:37.174 --> 04:43.112
+Network ACL hoạt động ở cấp subnet, không có trạng thái, và hỗ trợ cả Allow lẫn Deny.
+
+04:43.112 --> 04:48.826
+Vì Network ACL stateless, bạn phải cho phép traffic hai chiều và chú ý ephemeral ports.
+
+04:48.826 --> 04:53.190
+Trong thiết kế thông thường, hãy ưu tiên Security Group reference.
+
+04:53.190 --> 05:02.375
+Chẳng hạn, database chỉ nhận traffic từ Security Group của application, còn application chỉ nhận traffic từ Security Group của load balancer.
+
+05:02.375 --> 05:06.572
+NAT Gateway cho workload trong private subnet chủ động đi ra Internet.
+
+05:06.572 --> 05:10.623
+Nó không cho Internet chủ động mở kết nối vào EC2 private.
+
+05:10.623 --> 05:18.090
+VPC endpoint cho phép workload gọi các dịch vụ AWS được hỗ trợ qua đường private, giảm phụ thuộc vào NAT và public Internet.
+
+05:18.090 --> 05:22.922
+Nhưng endpoint policy không thay thế IAM policy hoặc resource policy.
+
+05:22.922 --> 05:29.406
+Với secret, Secrets Manager phù hợp khi password hoặc API secret cần rotation và workflow quản lý.
+
+05:29.406 --> 05:35.299
+Systems Manager Parameter Store phù hợp với configuration và một số secret tùy tier và tính năng.
+
+05:35.299 --> 05:39.295
+Application nên dùng IAM role để lấy secret lúc chạy.
+
+05:39.295 --> 05:44.674
+Không đặt password trong code, image, file môi trường đã commit hoặc EC2 user data.
+
+05:44.674 --> 05:48.090
+Để chọn dịch vụ bảo mật, hãy đọc động từ trong đề.
+
+05:48.090 --> 05:56.594
+AWS WAF bảo vệ request HTTP trước các kiểu tấn công như SQL injection, cross-site scripting, bot và request rate bất thường.
+
+05:56.594 --> 06:04.775
+Shield bảo vệ trước DDoS; Shield Standard có sẵn cho các dịch vụ được hỗ trợ, còn Shield Advanced dành cho yêu cầu bảo vệ và hỗ trợ nâng cao.
+
+06:04.775 --> 06:08.726
+GuardDuty phát hiện hành vi đáng ngờ từ các tín hiệu và log.
+
+06:08.726 --> 06:11.639
+Macie tìm dữ liệu nhạy cảm trong S3.
+
+06:11.639 --> 06:14.898
+Inspector quét lỗ hổng trên workload được hỗ trợ.
+
+06:14.898 --> 06:18.949
+Security Hub tổng hợp finding và security posture.
+
+06:18.949 --> 06:22.978
+Detective hỗ trợ điều tra mối quan hệ giữa tài nguyên và hoạt động.
+
+06:22.978 --> 06:24.853
+Hãy xét một ví dụ.
+
+06:24.853 --> 06:29.831
+Một website public dùng EC2, nhưng EC2 không được có public IP.
+
+06:29.831 --> 06:32.699
+Database không được truy cập từ Internet.
+
+06:32.699 --> 06:37.565
+Application cần đọc S3 và lấy password database có tự động rotation.
+
+06:37.565 --> 06:52.040
+Kiến trúc phù hợp là CloudFront và WAF ở phía trước, Application Load Balancer public, EC2 private, database private chỉ nhận traffic từ application Security Group, S3 gateway endpoint, và Secrets Manager kết hợp IAM instance role.
+
+06:52.040 --> 06:55.534
+NAT chỉ cần nếu application còn phải gọi Internet.
+
+06:55.534 --> 07:00.244
+Bẫy của Task 1.2: route table chỉ định đường đi, không phải firewall.
+
+07:00.244 --> 07:03.168
+Private subnet không tự mã hóa traffic.
+
+07:03.168 --> 07:06.215
+VPC endpoint không tự cấp permission.
+
+07:06.215 --> 07:09.261
+WAF không thay Security Group.
+
+07:09.261 --> 07:12.241
+Shield không sửa IAM policy.
+
+07:12.241 --> 07:17.732
+GuardDuty chủ yếu phát hiện, trong khi WAF và Shield bảo vệ ở các lớp khác nhau.
+
+07:17.732 --> 07:19.038
+Phần ba.
+
+07:19.038 --> 07:22.576
+Task 1.3: lựa chọn biện pháp bảo vệ dữ liệu.
+
+07:22.708 --> 07:25.894
+Với bất kỳ dữ liệu nào, hãy hỏi bốn câu.
+
+07:25.844 --> 07:27.663
+Ai được đọc hoặc ghi?
+
+07:27.663 --> 07:30.866
+Nếu dữ liệu bị lấy cắp, nó có đọc được không?
+
+07:30.866 --> 07:34.505
+Nếu dữ liệu bị xóa hoặc hỏng, ta có phục hồi được không?
+
+07:34.505 --> 07:37.808
+Và dữ liệu phải được giữ hay xóa vào thời điểm nào?
+
+07:37.808 --> 07:40.699
+Encryption không thay thế access control.
+
+07:40.699 --> 07:45.889
+Một principal có quyền đọc object nhưng không có quyền dùng khóa KMS có thể không giải mã được.
+
+07:45.889 --> 07:50.498
+Ngược lại, chỉ có quyền KMS cũng không tự tạo quyền đọc object S3.
+
+07:50.498 --> 07:53.456
+Bạn phải kiểm tra toàn bộ chuỗi permission.
+
+07:53.456 --> 08:00.520
+Dữ liệu at rest là dữ liệu trong S3, EBS hoặc database và thường được bảo vệ bằng mã hóa của dịch vụ hoặc KMS.
+
+08:00.520 --> 08:06.570
+Dữ liệu in transit là dữ liệu đang truyền trên mạng và thường được bảo vệ bằng TLS hoặc VPN khi phù hợp.
+
+08:06.570 --> 08:10.900
+Nếu đề nói mã hóa toàn bộ dữ liệu, hãy kiểm tra cả hai trạng thái.
+
+08:10.900 --> 08:13.891
+KMS dùng envelope encryption.
+
+08:13.891 --> 08:19.527
+Hiểu đơn giản, data key mã hóa lượng dữ liệu lớn, còn KMS key bảo vệ data key.
+
+08:19.527 --> 08:25.878
+Chọn customer managed KMS key khi doanh nghiệp cần tự kiểm soát key policy, audit hoặc rotation chi tiết.
+
+08:25.878 --> 08:32.998
+Key rotation thay đổi key material theo cơ chế được hỗ trợ; nó không có nghĩa toàn bộ ciphertext cũ lập tức được mã hóa lại.
+
+08:32.998 --> 08:35.398
+TLS bảo vệ kết nối.
+
+08:35.398 --> 08:40.041
+AWS Certificate Manager quản lý certificate cho các dịch vụ tích hợp.
+
+08:40.041 --> 08:49.058
+Nếu TLS kết thúc tại CloudFront hoặc load balancer, hãy kiểm tra chặng từ đó tới origin, vì yêu cầu end-to-end encryption đòi hỏi mọi chặng đều được bảo vệ.
+
+08:49.058 --> 08:53.467
+Với S3, Block Public Access giảm nguy cơ public ngoài ý muốn.
+
+08:53.467 --> 08:58.679
+Bucket policy, IAM policy và access point policy quyết định quyền truy cập.
+
+08:58.679 --> 09:02.183
+Versioning giúp phục hồi phiên bản bị ghi đè hoặc xóa nhầm.
+
+09:02.183 --> 09:06.324
+Lifecycle chuyển object sang lớp lưu trữ khác hoặc hết hạn theo thời gian.
+
+09:06.324 --> 09:12.998
+Object Lock cung cấp cơ chế lưu trữ không thể sửa hoặc xóa trong thời hạn retention, còn gọi là WORM.
+
+09:12.998 --> 09:15.811
+Compliance mode nghiêm ngặt hơn governance mode.
+
+09:15.811 --> 09:20.119
+Đừng nhầm backup, replication, versioning và Object Lock.
+
+09:20.119 --> 09:23.400
+Backup hoặc snapshot giúp quay về trạng thái trước đây.
+
+09:23.400 --> 09:29.058
+Replication tạo bản sao gần hiện tại ở nơi khác nhưng có thể sao chép cả lỗi logic hoặc thao tác xóa.
+
+09:29.058 --> 09:31.614
+Versioning giữ các phiên bản object.
+
+09:31.614 --> 09:34.717
+Object Lock ngăn sửa hoặc xóa trong thời gian đã đặt.
+
+09:34.717 --> 09:37.887
+Read replica cũng không phải historical backup.
+
+09:37.887 --> 09:46.625
+Ví dụ, hồ sơ tài chính trong S3 phải được giữ bảy năm, không ai được xóa sớm, bucket phải private, khóa do công ty kiểm soát và mọi truy cập phải được audit.
+
+09:46.625 --> 09:59.583
+Thiết kế phù hợp gồm S3 Versioning, Object Lock compliance retention, mã hóa SSE-KMS với customer managed key, Block Public Access, policy least privilege, CloudTrail data events và log retention.
+
+09:59.583 --> 10:04.583
+Lifecycle có thể chuyển dữ liệu sang archive class nếu thời gian truy xuất vẫn đáp ứng yêu cầu.
+
+10:04.583 --> 10:08.299
+Bẫy của Task 1.3: mã hóa không thay permission.
+
+10:08.299 --> 10:12.697
+Key policy sai có thể chặn principal dù IAM có Allow.
+
+10:12.697 --> 10:15.989
+Rotation không tự re-encrypt dữ liệu cũ.
+
+10:15.989 --> 10:18.378
+Replication không thay backup.
+
+10:18.378 --> 10:21.257
+Lifecycle không tự replicate dữ liệu.
+
+10:21.257 --> 10:24.773
+Object Lock cần versioning và không tự mã hóa object.
+
+10:24.773 --> 10:26.904
+Bây giờ là phần tổng kết.
+
+10:26.904 --> 10:29.717
+Domain 1 có thể được nhớ bằng ba lớp.
+
+10:29.717 --> 10:36.692
+Task 1.1 bảo vệ access: đúng identity, đúng role, đúng policy, đúng account và đúng guardrail.
+
+10:36.692 --> 10:45.911
+Task 1.2 bảo vệ workload: chia lớp mạng, giảm public exposure, dùng secret đúng cách, bảo vệ entry point và chọn dịch vụ detection theo đúng động từ.
+
+10:45.911 --> 10:54.561
+Task 1.3 bảo vệ data: kiểm soát quyền, mã hóa khi lưu và khi truyền, quản lý khóa, backup, versioning, retention và audit.
+
+10:54.700 --> 10:57.607
+Khi làm đề, hãy đi theo thứ tự sau.
+
+10:57.557 --> 10:59.577
+Xác định principal.
+
+10:59.577 --> 11:01.698
+Tìm Explicit Deny.
+
+11:01.698 --> 11:04.231
+Kiểm tra Allow và các guardrail.
+
+11:04.231 --> 11:07.379
+Theo dấu network path từ client tới database.
+
+11:07.379 --> 11:13.818
+Cuối cùng, theo dấu vòng đời dữ liệu từ lúc tạo, truyền, lưu, sao chép, backup cho tới khi xóa.
+
+11:13.818 --> 11:23.316
+Nếu nhớ được một câu duy nhất, hãy nhớ câu này: IAM đúng không thay thế network security; network kín không thay thế encryption; và encryption không thay thế quyền truy cập.
+
+11:23.316 --> 11:26.687
+Một kiến trúc an toàn cần cả ba lớp phối hợp với nhau.
+
+11:26.687 --> 11:31.251
+Bạn vừa hoàn thành phần ôn tập Domain 1, Design Secure Architectures.
