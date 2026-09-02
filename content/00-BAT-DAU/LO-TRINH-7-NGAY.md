@@ -1,5 +1,11 @@
 # Lộ trình SAA-C03 trong đúng 7 ngày
 
+## Trước ngày 1 — dành cho người mới
+
+Nếu chưa từng học AWS, dành 60–90 phút đọc [AWS từ số 0](00-AWS-CHO-NGUOI-MOI.md) và dùng [Từ điển AWS](01-TU-DIEN-AWS-CHO-NGUOI-MOI.md) khi gặp thuật ngữ lạ. Sau đó mở [bản đồ 14 task](../08-EXAM-GUIDE-DOMAINS/README.md) để biết mỗi ngày đang phục vụ phần nào của Exam Guide.
+
+Không cần có một năm kinh nghiệm mới bắt đầu học, nhưng người mới phải bù bằng cách luôn vẽ request path và tự giải thích trade-off thay vì học tên dịch vụ.
+
 ## Phân bổ thời gian
 
 Lộ trình chuẩn cần 4–5 giờ mỗi ngày. Nếu chỉ có 2–3 giờ, giữ nguyên thứ tự nhưng giảm lab và số câu practice; không bỏ phần xem lại lỗi sai.
@@ -13,6 +19,8 @@ Lộ trình chuẩn cần 4–5 giờ mỗi ngày. Nếu chỉ có 2–3 giờ, 
 | Cram/flashcards | 20 phút | Spaced repetition kiến thức ngày trước |
 
 ## Ngày 1 — Security
+
+Task Exam Guide: [1.1 Secure access](../08-EXAM-GUIDE-DOMAINS/DOMAIN-1-SECURE/TASK-1.1-SECURE-ACCESS.md), [1.2 Secure workloads](../08-EXAM-GUIDE-DOMAINS/DOMAIN-1-SECURE/TASK-1.2-SECURE-WORKLOADS.md), [1.3 Data security](../08-EXAM-GUIDE-DOMAINS/DOMAIN-1-SECURE/TASK-1.3-DATA-SECURITY.md).
 
 Đọc:
 
@@ -28,6 +36,8 @@ Lộ trình chuẩn cần 4–5 giờ mỗi ngày. Nếu chỉ có 2–3 giờ, 
 - Làm 40–60 câu Security.
 
 ## Ngày 2 — Resilience
+
+Task Exam Guide: [2.1 Scalable và loosely coupled](../08-EXAM-GUIDE-DOMAINS/DOMAIN-2-RESILIENT/TASK-2.1-SCALABLE-LOOSELY-COUPLED.md), [2.2 HA và fault tolerance](../08-EXAM-GUIDE-DOMAINS/DOMAIN-2-RESILIENT/TASK-2.2-HA-FAULT-TOLERANT.md).
 
 Đọc:
 
@@ -45,6 +55,8 @@ Lộ trình chuẩn cần 4–5 giờ mỗi ngày. Nếu chỉ có 2–3 giờ, 
 
 ## Ngày 3 — Storage và Database
 
+Task Exam Guide: [3.1 Storage performance](../08-EXAM-GUIDE-DOMAINS/DOMAIN-3-HIGH-PERFORMING/TASK-3.1-STORAGE.md), [3.3 Database performance](../08-EXAM-GUIDE-DOMAINS/DOMAIN-3-HIGH-PERFORMING/TASK-3.3-DATABASE.md), [4.1 Storage cost](../08-EXAM-GUIDE-DOMAINS/DOMAIN-4-COST-OPTIMIZED/TASK-4.1-STORAGE-COST.md), [4.3 Database cost](../08-EXAM-GUIDE-DOMAINS/DOMAIN-4-COST-OPTIMIZED/TASK-4.3-DATABASE-COST.md).
+
 Đọc:
 
 - S3 storage classes, lifecycle, versioning, replication, security.
@@ -58,6 +70,8 @@ Lộ trình chuẩn cần 4–5 giờ mỗi ngày. Nếu chỉ có 2–3 giờ, 
 - Làm 50 câu storage/database.
 
 ## Ngày 4 — Networking
+
+Task Exam Guide: [3.4 Network performance](../08-EXAM-GUIDE-DOMAINS/DOMAIN-3-HIGH-PERFORMING/TASK-3.4-NETWORK.md) và [4.4 Network cost](../08-EXAM-GUIDE-DOMAINS/DOMAIN-4-COST-OPTIMIZED/TASK-4.4-NETWORK-COST.md).
 
 Đọc:
 
@@ -74,6 +88,8 @@ Lộ trình chuẩn cần 4–5 giờ mỗi ngày. Nếu chỉ có 2–3 giờ, 
 
 ## Ngày 5 — Compute và Integration
 
+Task Exam Guide: [3.2 Compute performance](../08-EXAM-GUIDE-DOMAINS/DOMAIN-3-HIGH-PERFORMING/TASK-3.2-COMPUTE.md) và [3.5 Data ingestion/transformation](../08-EXAM-GUIDE-DOMAINS/DOMAIN-3-HIGH-PERFORMING/TASK-3.5-DATA-INGESTION.md).
+
 Đọc:
 
 - EC2 instance families, placement groups, AMI, storage và scaling.
@@ -88,6 +104,8 @@ Lộ trình chuẩn cần 4–5 giờ mỗi ngày. Nếu chỉ có 2–3 giờ, 
 
 ## Ngày 6 — Cost, Migration và Operations
 
+Task Exam Guide: ôn trọn [Domain 4 — Cost-Optimized](../08-EXAM-GUIDE-DOMAINS/DOMAIN-4-COST-OPTIMIZED/README.md), đặc biệt Task 4.1–4.4.
+
 Đọc:
 
 - On-Demand, Spot, Savings Plans, Reserved Instances, Capacity Reservation.
@@ -101,6 +119,8 @@ Lộ trình chuẩn cần 4–5 giờ mỗi ngày. Nếu chỉ có 2–3 giờ, 
 - Phân loại mọi câu sai theo error type, không chỉ xem đáp án.
 
 ## Ngày 7 — Mock và review
+
+Trộn câu hỏi từ cả [14 task Exam Guide](../08-EXAM-GUIDE-DOMAINS/README.md); gắn mỗi câu sai vào đúng task để biết lỗ hổng thật sự.
 
 - Làm mock 2 trong điều kiện giống thi thật.
 - Chỉ vá ba lỗ hổng có tác động lớn nhất.

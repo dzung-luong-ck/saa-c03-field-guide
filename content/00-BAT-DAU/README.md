@@ -6,10 +6,12 @@ SAA-C03 đánh giá khả năng chọn và cải thiện kiến trúc AWS theo b
 
 ## Tài liệu trong folder
 
-1. [Lộ trình 7 ngày](LO-TRINH-7-NGAY.md)
-2. [Chiến thuật phân tích và làm bài](CHIEN-THUAT-LAM-BAI.md)
-3. [Nguồn và cách đối chiếu slide PDF](NGUON-VA-CACH-DOI-CHIEU.md)
-4. Sau đó chuyển sang [Ngày 1 — Security](../01-NGAY-1-SECURITY/README.md)
+1. Nếu chưa biết AWS: [AWS từ số 0](00-AWS-CHO-NGUOI-MOI.md)
+2. Khi gặp từ lạ: [Từ điển AWS cho người mới](01-TU-DIEN-AWS-CHO-NGUOI-MOI.md)
+3. [14 task theo AWS Exam Guide](../08-EXAM-GUIDE-DOMAINS/README.md)
+4. [Lộ trình 7 ngày](LO-TRINH-7-NGAY.md)
+5. [Chiến thuật phân tích và làm bài](CHIEN-THUAT-LAM-BAI.md)
+6. [Nguồn và cách đối chiếu slide PDF](NGUON-VA-CACH-DOI-CHIEU.md)
 
 ## Thông tin thi cần nhớ
 
@@ -26,6 +28,8 @@ SAA-C03 đánh giá khả năng chọn và cải thiện kiến trúc AWS theo b
 - Tạo một file error log với các cột: câu hỏi, từ khóa, đáp án đã chọn, đáp án đúng, lý do sai, rule cần nhớ.
 - Đặt timer khi làm bài; không học theo kiểu vừa làm vừa tra đáp án.
 - Nếu có AWS account, đặt budget alert trước mọi lab và xóa resource ngay sau khi thực hành.
+
+Nếu là người mới hoàn toàn, dành thêm 60–90 phút trước Ngày 1 để đọc hai bài nền tảng. Không cố thuộc dịch vụ; mục tiêu là hiểu account, Region/AZ, request path, IAM, compute, storage, database và networking nằm ở lớp nào.
 
 ## Definition of done sau 7 ngày
 

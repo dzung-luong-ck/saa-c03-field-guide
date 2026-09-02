@@ -1,8 +1,11 @@
-# SAA-C03 — Bộ cheatsheet chi tiết theo lộ trình 7 ngày
+# SAA-C03 — Bộ học chi tiết theo 14 task và lộ trình 7 ngày
 
-Bộ tài liệu này được tổ chức để học tuần tự trong đúng một tuần. Mỗi ngày có một folder riêng, bên trong gồm phần lý thuyết, bảng quyết định, tình huống đề thi và câu hỏi tự kiểm tra.
+Bộ tài liệu này được tổ chức theo đúng 4 domain/14 task của AWS Exam Guide, đồng thời giữ thư viện chuyên sâu theo lộ trình 7 ngày. Mỗi task có phần giải thích cho người mới, decision framework, scenario, exam traps và checklist tự kiểm tra.
 
-> Điểm bắt đầu: [Lộ trình 7 ngày](00-BAT-DAU/LO-TRINH-7-NGAY.md)  
+> Điểm bắt đầu: [AWS từ số 0](00-BAT-DAU/00-AWS-CHO-NGUOI-MOI.md)
+>
+> Bản đồ chính: [14 task theo Exam Guide](08-EXAM-GUIDE-DOMAINS/README.md)
+>
 > Bản tra cứu gọn: [Cheatsheet tổng hợp](SAA-C03-CHEATSHEET-7-NGAY.md)
 
 ## Cấu trúc
@@ -48,14 +51,28 @@ saa-learn/
 │   ├── 01-COST-OPTIMIZATION.md
 │   ├── 02-MIGRATION-TRANSFER.md
 │   └── 03-OBSERVABILITY-GOVERNANCE.md
-└── 07-NGAY-7-MOCK-REVIEW/
-    ├── README.md
-    ├── 01-MOCK-EXAM-STRATEGY.md
-    ├── 02-CONFUSION-MATRIX.md
-    ├── 03-ARCHITECTURE-RECIPES.md
-    ├── 04-ACTIVE-RECALL.md
-    └── 05-CRAM-SHEET.md
+├── 07-NGAY-7-MOCK-REVIEW/
+│   ├── README.md
+│   ├── 01-MOCK-EXAM-STRATEGY.md
+│   ├── 02-CONFUSION-MATRIX.md
+│   ├── 03-ARCHITECTURE-RECIPES.md
+│   ├── 04-ACTIVE-RECALL.md
+│   └── 05-CRAM-SHEET.md
+└── 08-EXAM-GUIDE-DOMAINS/
+    ├── DOMAIN-1-SECURE/          # Task 1.1–1.3
+    ├── DOMAIN-2-RESILIENT/       # Task 2.1–2.2
+    ├── DOMAIN-3-HIGH-PERFORMING/ # Task 3.1–3.5
+    └── DOMAIN-4-COST-OPTIMIZED/  # Task 4.1–4.4
 ```
+
+## Học theo Exam Guide
+
+| Domain | Trọng số | Task |
+|---|---:|---:|
+| [Design Secure Architectures](08-EXAM-GUIDE-DOMAINS/DOMAIN-1-SECURE/README.md) | 30% | 1.1–1.3 |
+| [Design Resilient Architectures](08-EXAM-GUIDE-DOMAINS/DOMAIN-2-RESILIENT/README.md) | 26% | 2.1–2.2 |
+| [Design High-Performing Architectures](08-EXAM-GUIDE-DOMAINS/DOMAIN-3-HIGH-PERFORMING/README.md) | 24% | 3.1–3.5 |
+| [Design Cost-Optimized Architectures](08-EXAM-GUIDE-DOMAINS/DOMAIN-4-COST-OPTIMIZED/README.md) | 20% | 4.1–4.4 |
 
 ## Thứ tự học
 

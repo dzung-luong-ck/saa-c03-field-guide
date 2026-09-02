@@ -1,6 +1,6 @@
 # SAA-C03 Field Guide
 
-Website đọc và ôn bộ cheatsheet AWS Certified Solutions Architect – Associate (SAA-C03) bằng tiếng Việt trong 7 ngày.
+Website học AWS Certified Solutions Architect – Associate (SAA-C03) bằng tiếng Việt, dành cho người mới và bám theo từng task của Exam Guide.
 
 **Website:** [saa-c03-field-guide-vn.ltdunggg.chatgpt.site](https://saa-c03-field-guide-vn.ltdunggg.chatgpt.site)
 
@@ -10,7 +10,9 @@ Website đọc và ôn bộ cheatsheet AWS Certified Solutions Architect – Ass
 
 ## Tính năng
 
-- Mục lục 40 bài, nhóm theo lộ trình từ ngày 1 đến ngày 7.
+- 14 bài theo từng Task Statement trong 4 domain chính thức của Exam Guide.
+- Hai bài nhập môn “AWS từ số 0” và từ điển thuật ngữ cho beginner.
+- Thư viện chuyên sâu theo lộ trình từ ngày 1 đến ngày 7.
 - Render đầy đủ Markdown, bảng, code block và liên kết giữa các bài.
 - Tìm kiếm xuyên tiêu đề lẫn nội dung.
 - Giao diện responsive, sáng/tối.
